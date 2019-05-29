@@ -1,0 +1,10 @@
+Controller\LogReader.class
+GUI\StartGUI\StartProgramm.class
+Model\Ordner.class
+Model\ResultBoolean.class
+Main.class
+Controller\ModelController$1.class
+GUI\StartGUI\SecondPaneController.class
+GUI\StartGUI\DefaultPageController.class
+Model\Verbindung.class
+Controller\ModelController.class
