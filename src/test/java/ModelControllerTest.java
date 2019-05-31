@@ -1,4 +1,4 @@
-import Controller.ModelController;
+import Controller.ModelContainer;
 import Model.Ordner;
 import Model.Verbindung;
 
@@ -12,11 +12,11 @@ public class ModelControllerTest {
         generateTestData();
 
         System.out.println("=========================================================================");
-        ModelController modelControllerNeu = new ModelController();
-        modelControllerNeu.readOrdner();
+        ModelContainer modelContainerNeu = new ModelContainer();
+        modelContainerNeu.readOrdner();
 
 
-        ArrayList<Ordner> ordnerArrayList = modelControllerNeu.getOrdnerList();
+        ArrayList<Ordner> ordnerArrayList = modelContainerNeu.getOrdnerList();
         System.out.println(ordnerArrayList.size());
 
         for(Ordner ordner: ordnerArrayList) {
@@ -30,7 +30,7 @@ public class ModelControllerTest {
     }
 
     private static void generateTestData() {
-        ModelController modelController = new ModelController();
+        ModelContainer modelContainer = new ModelContainer();
 
         Ordner ordner1 = new Ordner();
         ordner1.setBezeichnung("Linux Serverübersicht");
@@ -106,8 +106,8 @@ public class ModelControllerTest {
         ordner2.addVerbindung(verbindung2_2);
         ordner2.addVerbindung(verbindung2_3);
 
-        modelController.addOrdner(ordner1);
-        modelController.addOrdner(ordner2);
-        modelController.safeOrdner();
+        modelContainer.addOrdner(ordner1);
+        modelContainer.addOrdner(ordner2);
+        modelContainer.safeOrdner();
     }
 }

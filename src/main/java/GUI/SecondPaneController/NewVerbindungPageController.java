@@ -1,6 +1,6 @@
 package GUI.SecondPaneController;
 
-import Controller.ModelController;
+import Controller.ModelContainer;
 import Model.Ordner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class NewVerbindungPageController {
-    ModelController modelController = new ModelController();
+    ModelContainer modelContainer = new ModelContainer();
 
     @FXML Pane newVerbindungPage;
     // alle Eingabefelder
@@ -31,13 +31,13 @@ public class NewVerbindungPageController {
     @FXML
     private void initialize() {
         System.out.println("[GUI] newVerbindungPage geladen");
-        this.modelController.readOrdner();
+        this.modelContainer.readOrdner();
         fillChoiceBoxOrdner();
         fillChoiceBoxBetriebssystem();
     }
 
     private void fillChoiceBoxOrdner() {
-        for (Ordner o: modelController.getOrdnerList()) {
+        for (Ordner o: modelContainer.getOrdnerList()) {
             ordner.getItems().add(o.getBezeichnung());
         }
     }

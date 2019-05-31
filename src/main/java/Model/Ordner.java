@@ -61,4 +61,9 @@ public class Ordner {
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }
+
+    @Override
+    public String toString() {
+        return this.getBezeichnung();
+    }
 }

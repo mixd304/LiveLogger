@@ -1,6 +1,6 @@
 package GUI;
 
-import Controller.ModelController;
+import Controller.ModelContainer;
 import Model.Ordner;
 import Model.Verbindung;
 import javafx.event.ActionEvent;
@@ -8,35 +8,44 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TitledPane;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+import org.controlsfx.control.CheckModel;
+import org.controlsfx.control.CheckTreeView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static javafx.geometry.Pos.BOTTOM_LEFT;
+import static javafx.geometry.Pos.BOTTOM_RIGHT;
 
 public class DefaultPageController {
-    ModelController modelController = new ModelController();
+    ModelContainer modelContainer = new ModelContainer();
 
     @FXML SplitPane SplitPane;
     @FXML Pane SecondPane;
     @FXML VBox vboxTitledPanes;
 
+    private CheckTreeView<Object> tree;
+
     @FXML
     private void initialize() {
         System.out.println("[GUI] Default Page Initialized");
-        this.modelController.readOrdner();
+        this.modelContainer.readOrdner();
         fillMenue();
     }
 
     @FXML
     private void fillMenue() {
-        ArrayList<Ordner> ordnerArrayList = modelController.getOrdnerList();
+        ArrayList<Ordner> ordnerArrayList = modelContainer.getOrdnerList();
         for(Ordner ordner: ordnerArrayList) {
             TitledPane titledPane = new TitledPane();
             titledPane.setText(ordner.getBezeichnung());
@@ -71,15 +80,15 @@ public class DefaultPageController {
         return checkBox;
     }
 
-    public void newButtonClicked(ActionEvent actionEvent) throws IOException {
+    public void menue_newButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] New Button Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
         SplitPane.getItems().set(1, newLoadedPane);
     }
 
-    public void deleteButtonClicked(ActionEvent actionEvent) {
+    public void menue_deleteButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] Delete Button Clicked!");
-
+        //buildDeleteWindow(((Node) actionEvent.getSource()).getScene().getWindow());
     }
 
     public void refreshLogs(ActionEvent actionEvent) {
@@ -146,4 +155,89 @@ public class DefaultPageController {
     public void setSplitPane(javafx.scene.control.SplitPane splitPane) {
         SplitPane = splitPane;
     }
+
+    private void buildDeleteWindow(Window window) {
+        Stage deleteStage = new Stage();
+        ArrayList<Ordner> ordnerArrayList = modelContainer.getOrdnerList();
+
+        CheckBoxTreeItem<Object> rootItem = new CheckBoxTreeItem<Object>(new String("Alles auswählen"));
+
+        for(Ordner ordner: ordnerArrayList) {
+            CheckBoxTreeItem<Object> checkBoxTreeItem_Ordner = new CheckBoxTreeItem<Object>(ordner);
+
+            ArrayList<Verbindung> verbindungen = ordner.getList();
+            for (Verbindung verbindung : verbindungen) {
+                CheckBoxTreeItem<Object> checkBoxTreeItem_Verbindung = new CheckBoxTreeItem<Object>(verbindung);
+                checkBoxTreeItem_Ordner.getChildren().add(checkBoxTreeItem_Verbindung);
+            }
+            rootItem.getChildren().add(checkBoxTreeItem_Ordner);
+        }
+
+        rootItem.setExpanded(true);
+        this.tree = new CheckTreeView<Object>(rootItem);
+        tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        System.out.println(tree.toString());
+
+        Button submit = new Button();
+        submit.setMnemonicParsing(false);
+        submit.setText("Bestätigen");
+        submit.setAlignment(BOTTOM_LEFT);
+        submit.setPrefSize(150,20);
+        submit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                //deleteWindowSubmitButtonClicked();
+                System.out.println("[ACTION] Submit Button clicked");
+
+                System.out.println(tree.toString());
+                for (Object o: tree.getCheckModel().getCheckedItems()) {
+                    System.out.println(o.toString());
+                }
+            }
+        });
+
+        Button cancel = new Button();
+        cancel.setMnemonicParsing(false);
+        cancel.setText("Abbrechen");
+        cancel.setAlignment(BOTTOM_RIGHT);
+        cancel.setPrefSize(150,20);
+        cancel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Cancel Button clicked");
+                deleteStage.close();
+            }
+        });
+
+        GridPane buttons = new GridPane();
+        buttons.setPrefWidth(400);
+        buttons.setHgap(100);
+        buttons.setGridLinesVisible(false);
+        buttons.add(submit, 0, 0);
+        buttons.add(cancel, 1, 0);
+
+        StackPane root = new StackPane();
+        root.getChildren().add(tree);
+        root.getChildren().add(submit);
+        //root.getChildren().add(buttons);
+        //deleteStage.setScene(new Scene(root, 400, 100));
+        root.setPrefWidth(400);
+        deleteStage.setScene(new Scene(root));
+        deleteStage.centerOnScreen();
+        deleteStage.initOwner(window);
+        deleteStage.setTitle("Welche Daten sollen gelöscht werden?");
+        deleteStage.initModality(Modality.APPLICATION_MODAL);
+        deleteStage.show();
+    }
+
+    private void deleteWindowSubmitButtonClicked() {
+        System.out.println("[ACTION] Submit Button clicked");
+
+        CheckModel checkModel = tree.getCheckModel();
+        List<Object> checked = checkModel.getCheckedItems();
+        for (Object o: checked) {
+            o.toString();
+        }
+    }
 }
+

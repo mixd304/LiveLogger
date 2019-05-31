@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ModelController {
+public class ModelContainer {
     private String speicherort = "C:/Projekte/GEE/LiveLogger/ordner.json";
     private ArrayList<Ordner> ordnerList = new ArrayList<>();
 

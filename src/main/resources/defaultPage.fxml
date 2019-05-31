@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.DefaultPageController">
+<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="825.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.DefaultPageController">
    <children>
-      <SplitPane fx:id="SplitPane" dividerPositions="0.2" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="800.0" prefWidth="1000.0">
+      <MenuBar prefHeight="25.0" prefWidth="1000.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Daten">
+            <items>
+              <MenuItem fx:id="newButton" mnemonicParsing="false" onAction="#menue_newButtonClicked" text="Neu" />
+                  <MenuItem fx:id="deleteButton" mnemonicParsing="false" onAction="#menue_deleteButtonClicked" text="Löschen" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <SplitPane fx:id="SplitPane" dividerPositions="0.2" layoutY="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="800.0" prefWidth="1000.0">
          <items>
             <AnchorPane fx:id="FirstPane" maxWidth="200.0" minHeight="150.0" minWidth="50.0" prefHeight="800.0" prefWidth="200.0">
                <children>
                   <VBox fx:id="vboxTitledPanes">
 
                   </VBox>
-                  <Button fx:id="newButton" alignment="CENTER" layoutY="770.0" mnemonicParsing="false" onAction="#newButtonClicked" prefHeight="30.0" prefWidth="100.0" text="NEU" />
-                  <Button fx:id="deleteButton" alignment="CENTER" layoutX="100.0" layoutY="770.0" mnemonicParsing="false" onAction="#deleteButtonClicked" prefHeight="30.0" prefWidth="100.0" text="LÖSCHEN" />
                </children>
             </AnchorPane>
             <AnchorPane fx:id="SecondPane" minHeight="150.0" minWidth="0.0" prefHeight="800.0" prefWidth="800.0">

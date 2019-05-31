@@ -89,4 +89,9 @@ public class Verbindung {
     public void setSafePasswort(boolean safePasswort) {
         this.safePasswort = safePasswort;
     }
+
+    @Override
+    public String toString() {
+        return this.getBezeichnung();
+    }
 }
