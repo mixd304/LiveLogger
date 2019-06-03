@@ -10,6 +10,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -20,6 +22,7 @@ import javafx.stage.Window;
 import org.controlsfx.control.CheckModel;
 import org.controlsfx.control.CheckTreeView;
 
+import javax.swing.event.MenuDragMouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,7 @@ public class DefaultPageController {
             TitledPane titledPane = new TitledPane();
             titledPane.setText(ordner.getBezeichnung());
             titledPane.setPrefWidth(200.0);
+            titledPane.setContextMenu(generateContextMenu());
             VBox vBox = new VBox();
             vBox.setPrefWidth(200.0);
 
@@ -77,7 +81,48 @@ public class DefaultPageController {
                 refreshLogs(actionEvent);
             }
         });
+        checkBox.setContextMenu(generateContextMenu());
+
         return checkBox;
+    }
+
+    private ContextMenu generateContextMenu() {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem menuItem_open = new MenuItem("Öffnen");
+        menuItem_open.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Öffnen geklickt");
+            }
+        });
+        MenuItem menuItem_edit = new MenuItem("Bearbeiten");
+        menuItem_edit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Bearbeiten geklickt");
+            }
+        });
+        MenuItem menuItem_delete = new MenuItem("Löschen");
+        menuItem_delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Löschen geklickt");
+            }
+        });
+        MenuItem menuItem_copyAsTemplate = new MenuItem("Als Vorlage verwenden");
+        menuItem_copyAsTemplate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Als Vorlage verwenden geklickt");
+            }
+        });
+
+        contextMenu.getItems().add(menuItem_open);
+        contextMenu.getItems().add(menuItem_edit);
+        contextMenu.getItems().add(menuItem_delete);
+        contextMenu.getItems().add(menuItem_copyAsTemplate);
+
+        return contextMenu;
     }
 
     public void menue_newButtonClicked(ActionEvent actionEvent) throws IOException {
