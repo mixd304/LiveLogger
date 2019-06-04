@@ -66,4 +66,12 @@ public class Ordner {
     public String toString() {
         return this.getBezeichnung();
     }
+
+    public void print() {
+        System.out.println("Ordner{" +
+                "uuid=" + uuid +
+                ", bezeichnung='" + bezeichnung + '\'' +
+                ", verbindungsList=" + verbindungsList +
+                '}');
+    }
 }

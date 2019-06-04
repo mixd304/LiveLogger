@@ -1,7 +1,8 @@
-package Controller;
+package Model.Container;
 
 import Model.Ordner;
 import Model.ResultBoolean;
+import Model.Verbindung;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -36,16 +37,75 @@ public class ModelContainer {
             if(ordner.getUuid().equals(uuid)) {
                 ordnerList.remove(ordner);
 
-                System.out.println("[INFO]   Der Order mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
+                System.out.println("[INFO]   Der Ordner mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
                 return new ResultBoolean(true, "Ordner gelöscht!");
             }
         }
-        System.out.println("[FEHLER] Der Order mit der UUID " + uuid + " konnte nicht gelöscht werden!");
+        System.out.println("[FEHLER] Der Ordner mit der UUID " + uuid + " konnte nicht gelöscht werden!");
         return new ResultBoolean(false, "Fehler beim Löschen des Ordners!");
     }
 
-    public void deleteVerbindungByUUID(Ordner ordner, UUID uuid) {
-        ordner.deleteVerbindungByUUID(uuid);
+    public ResultBoolean addVerbindungToOrdner(Ordner ordner, Verbindung verbindung) {
+        verbindung.setUuid(UUID.randomUUID());
+        for (Ordner o: this.ordnerList) {
+            if(o.equals(ordner)) {
+                System.out.println("Ordner = Ordner");
+                o.addVerbindung(verbindung);
+                return new ResultBoolean(true, "Verbindung erfolgreich angelegt!");
+            }
+        }
+        ordner.setUuid(UUID.randomUUID());
+        ordner.addVerbindung(verbindung);
+        ordnerList.add(ordner);
+        return new ResultBoolean(true, "Verbindung und Ordner erfolgreich angelegt!");
+    }
+
+    public Verbindung getVerbindungByUUID(UUID uuid) {
+        for (Ordner ordner: this.ordnerList) {
+            for (Verbindung verbindung:ordner.getList()) {
+                if(verbindung.getUuid().equals(uuid)) {
+                    return verbindung;
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean editVerbindung(Verbindung old_verbindung, Verbindung new_verbindung) {
+        for (Ordner ordner: this.ordnerList) {
+            for (Verbindung verbindung:ordner.getList()) {
+                if(verbindung.equals(old_verbindung)) {
+                    ordner.getList().set(ordner.getList().indexOf(old_verbindung), new_verbindung);
+                    System.out.println("[INFO]   Die Verbindung mit der " + old_verbindung.getUuid() + " wurde erfolgreich editiert!");
+                    return true;
+                }
+            }
+        }
+        System.out.println("[INFO]   Die Verbindung mit der " + old_verbindung.getUuid() + " konnte nicht editiert werden!");
+        return false;
+    }
+
+    public Ordner getOrdnerByVerbindung(Verbindung v) {
+        for (Ordner ordner: this.ordnerList) {
+            for (Verbindung verbindung:ordner.getList()) {
+                if(verbindung.equals(v)) {
+                    return ordner;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void deleteVerbindungByUUID(UUID uuid) {
+        for (Ordner ordner: this.ordnerList) {
+            for (Verbindung verbindung: ordner.getList()) {
+                if(verbindung.getUuid().equals(uuid)) {
+                    ordner.deleteVerbindungByUUID(uuid);
+                    break;
+                }
+            }
+        }
+        safeOrdner();
     }
 
     public boolean safeOrdner() {
@@ -71,7 +131,7 @@ public class ModelContainer {
         return false;
     }
 
-    public boolean readOrdner() {
+    public boolean loadOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // JSON file to Java Objec
@@ -112,5 +172,16 @@ public class ModelContainer {
 
     public void setOrdnerList(ArrayList<Ordner> ordnerList) {
         this.ordnerList = ordnerList;
+    }
+
+    public void print() {
+        for (Ordner ordner: this.ordnerList) {
+            System.out.println("Ordner - Bezeichnung: " + ordner.getBezeichnung());
+            System.out.println("Ordner - UUID:        " + ordner.getUuid());
+            for (Verbindung verbindung: ordner.getList()) {
+                System.out.println("  Verb - Bezeichnung: " + verbindung.getBezeichnung());
+                System.out.println("  Verb - UUID:        " + verbindung.getUuid());
+            }
+        }
     }
 }

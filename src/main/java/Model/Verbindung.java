@@ -10,7 +10,7 @@ public class Verbindung {
     private String benutzername;
     private String passwort;
     private boolean safePasswort;
-    //private String keyfile;
+    private String keyfile;
     private String logpath;
     private String betriebssystem;
 
@@ -90,8 +90,30 @@ public class Verbindung {
         this.safePasswort = safePasswort;
     }
 
+    public String getKeyfile() {
+        return keyfile;
+    }
+
+    public void setKeyfile(String keyfile) {
+        this.keyfile = keyfile;
+    }
+
     @Override
     public String toString() {
         return this.getBezeichnung();
+    }
+
+    public void print() {
+        System.out.println("Verbindung{" +
+                "uuid=" + uuid +
+                ", bezeichnung='" + bezeichnung + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                ", benutzername='" + benutzername + '\'' +
+                ", passwort='" + passwort + '\'' +
+                ", safePasswort=" + safePasswort +
+                ", logpath='" + logpath + '\'' +
+                ", betriebssystem='" + betriebssystem + '\'' +
+                '}');
     }
 }

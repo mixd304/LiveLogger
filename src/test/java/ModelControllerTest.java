@@ -1,4 +1,4 @@
-import Controller.ModelContainer;
+import Model.Container.ModelContainer;
 import Model.Ordner;
 import Model.Verbindung;
 
@@ -13,7 +13,7 @@ public class ModelControllerTest {
 
         System.out.println("=========================================================================");
         ModelContainer modelContainerNeu = new ModelContainer();
-        modelContainerNeu.readOrdner();
+        modelContainerNeu.loadOrdner();
 
 
         ArrayList<Ordner> ordnerArrayList = modelContainerNeu.getOrdnerList();
@@ -34,6 +34,7 @@ public class ModelControllerTest {
 
         Ordner ordner1 = new Ordner();
         ordner1.setBezeichnung("Linux Serverübersicht");
+        ordner1.setUuid(UUID.randomUUID());
         Verbindung verbindung1_1 = new Verbindung();
         verbindung1_1.setBezeichnung("Localhost Windows Server");
         verbindung1_1.setBenutzername("root");
@@ -72,6 +73,7 @@ public class ModelControllerTest {
 
         Ordner ordner2 = new Ordner();
         ordner2.setBezeichnung("Schuelermessquiz");
+        ordner2.setUuid(UUID.randomUUID());
         Verbindung verbindung2_1 = new Verbindung();
         verbindung2_1.setBezeichnung("Linux Datenbankserver");
         verbindung2_1.setBenutzername("root");

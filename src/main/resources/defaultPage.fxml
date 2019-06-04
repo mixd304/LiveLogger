@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="825.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.DefaultPageController">
+<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="825.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.DefaultGUIController">
    <children>
       <MenuBar prefHeight="25.0" prefWidth="1000.0">
         <menus>
@@ -29,9 +29,6 @@
                </children>
             </AnchorPane>
             <AnchorPane fx:id="SecondPane" minHeight="150.0" minWidth="0.0" prefHeight="800.0" prefWidth="800.0">
-               <children>
-                  <fx:include source="SecondPane/defaultSecondPage.fxml" />
-               </children>
             </AnchorPane>
          </items>
       </SplitPane>
