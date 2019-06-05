@@ -1,15 +1,16 @@
 package GUI;
 
-import GUI.SecondPaneController.NewVerbindungPage_Controller;
 import Model.Container.ModelContainer;
 import Model.Container.SessionContainer;
 import Model.Ordner;
 import Model.Verbindung;
+import ProgrammStart.StartProgramm;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,20 +24,18 @@ import javafx.stage.Window;
 import org.controlsfx.control.CheckModel;
 import org.controlsfx.control.CheckTreeView;
 
-import javax.xml.soap.Text;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static javafx.geometry.Pos.BOTTOM_LEFT;
 import static javafx.geometry.Pos.BOTTOM_RIGHT;
 
 public class DefaultGUIController {
-    private static ModelContainer modelContainer = new ModelContainer();
-    private static SessionContainer sessionContainer = new SessionContainer();
-
+    static ModelContainer modelContainer = new ModelContainer();
+    static SessionContainer sessionContainer = new SessionContainer();
 
     @FXML private SplitPane SplitPane;
     @FXML private VBox vboxTitledPanes;
@@ -63,6 +62,7 @@ public class DefaultGUIController {
             for(Ordner ordner: ordnerArrayList) {
                 TitledPane titledPane = new TitledPane();
                 titledPane.setUserData(ordner);
+                titledPane.setId(ordner.getUuid().toString());
                 titledPane.setText(ordner.getBezeichnung());
                 titledPane.setPrefWidth(200.0);
                 addContextMenuToTitledPane(titledPane);
@@ -109,11 +109,44 @@ public class DefaultGUIController {
             }
         });
 
-        // TODO: weitere Menü Items hinzufügen - TitledPanes (Ordner)
-        // z.B. Umbenennen
+        // MenuItem - Umbenennen Knopf - Bietet die Möglichkeit einen Ordner umzubenennen
+        MenuItem menuItem_rename = new MenuItem("Umbenennen");
+        menuItem_rename.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Ordner - Umbenennen geklickt");
+                // TODO: Ordner umbenennen POPUP
+            }
+        });
+
+        // MenuItem - Öffnen/ Schließen Knopf - Öffnet bzw schließt eine Verbindung und erneuert die Anzeige entsprechend der Anzahl ausgewählter Logs
+        MenuItem menuItem_delete = new MenuItem("Löschen");
+        menuItem_delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("[ACTION] Ordner - Umbenennen geklickt");
+                if(Dialogs.confirmDialog("Soll der Ordner '" + tP.getText() + "' wirklich gelöscht werden? \n \n" +
+                        "WARNUNG: Hierbei werden alle zugehörigen Verbindungen ebenfalls gelöscht!")) {
+                    UUID uuid = UUID.fromString(tP.getId());
+                    for (Verbindung verbindung: modelContainer.getOrdnerByUUID(uuid).getList()) {
+                        if(sessionContainer.getCheckedVerbindungenUUIDs().contains(verbindung.getUuid())) {
+                                sessionContainer.removeVerbindungByUUID(uuid);
+                        }
+                    }
+                    modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
+                    buildMenue();
+                }
+                // TODO: Ordner Löschen POPUP
+            }
+        });
+
+        // TODO: Kontextmenü erweitern - TitledPanes (Ordner)
+        // z.B. Umbenennen, Löschen
 
 
         contextMenu.getItems().add(menuItem_open_close);
+        contextMenu.getItems().add(menuItem_rename);
+        contextMenu.getItems().add(menuItem_delete);
         tP.setContextMenu(contextMenu);
     }
 
@@ -178,12 +211,14 @@ public class DefaultGUIController {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Verbindung - Löschen geklickt");
-                if(cB.isSelected()) {
-                    cB.setSelected(false);
+                if(Dialogs.confirmDialog("Soll die Verbindung zu '" + cB.getText() + "' wirklich gelöscht werden?")) {
+                    if(cB.isSelected()) {
+                        cB.setSelected(false);
+                    }
+                    refreshLogs(cB);
+                    modelContainer.deleteVerbindungByUUID(UUID.fromString(cB.getId()));
+                    buildMenue();
                 }
-                refreshLogs(cB);
-                modelContainer.deleteVerbindungByUUID(UUID.fromString(cB.getId()));
-                buildMenue();
             }
         });
 
@@ -196,6 +231,8 @@ public class DefaultGUIController {
                 System.out.println("[ACTION] Verbindung - Als Vorlage verwenden geklickt");
             }
         });
+
+        // TODO: Kontextmenü erweitern - CheckBox (Verbindungen)
 
         // Alle MenuItems zum ContextMenu hinzufügen
         contextMenu.getItems().add(menuItem_open_close);
@@ -237,11 +274,72 @@ public class DefaultGUIController {
         }
     }
 
+    public void menue_newButtonOrdner_Clicked(ActionEvent actionEvent) {
+        System.out.println("[ACTION] NewButtonVerbindung Clicked!");
+        while(true) {
+            String[] ordnerData = buildMenue_newButtonOrdner_Clicked_Window();
+            if(ordnerData == null) {
+                break;
+            } else if(ordnerData[0].equals("")) {
+                    Dialogs.confirmDialog("Bitte geben Sie eine Bezeichnung für den Ordner ein!");
+            } else {
+                Ordner new_ordner = new Ordner();
+                new_ordner.setBezeichnung(ordnerData[0]);
+                new_ordner.setUuid(UUID.randomUUID());
+                modelContainer.addOrdner(new_ordner);
+                try {
+                    StartProgramm.restart();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+
+        }
+    }
+
+    private String[] buildMenue_newButtonOrdner_Clicked_Window() {
+        Dialog<String[]> dialog = new Dialog<>();
+        ButtonType submitButton = new ButtonType("Hinzufügen" ,ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(submitButton, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20,150,10,10));
+
+        TextField bezeichnung = new TextField();
+        bezeichnung.setPromptText("Bezeichnung");
+
+        grid.add(new Label("Bezeichnung: "), 0, 0);
+        grid.add(bezeichnung,1,0);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if(dialogButton == submitButton){
+                String[] array = new String[1];
+                array[0] = bezeichnung.getText();
+                return array;
+            } else if(dialogButton == ButtonType.CANCEL){
+                return null;
+            }
+            return null;
+        });
+
+        Optional<String[]> result = dialog.showAndWait();
+        if(result.isPresent()) {
+            return result.get();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * wird aufgerufen, wenn im Menü-Reiter auf "Neu" geklickt wird
      */
-    public void menue_newButtonClicked(ActionEvent actionEvent) throws IOException {
-        System.out.println("[ACTION] New Button Clicked!");
+    public void menue_newButtonVerbindung_Clicked(ActionEvent actionEvent) throws IOException {
+        System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
         SplitPane.getItems().set(1, newLoadedPane);
     }
@@ -253,6 +351,7 @@ public class DefaultGUIController {
     public void menue_deleteButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] Delete Button Clicked!");
         //buildDeleteWindow(((Node) actionEvent.getSource()).getScene().getWindow());
+        Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
     }
 
     /**
@@ -304,6 +403,13 @@ public class DefaultGUIController {
     public static void setSessionContainer(SessionContainer sessionContainer) {
             DefaultGUIController.sessionContainer = sessionContainer;
         }
+    /*public static Thread getNew_thread_1() {
+        return new_thread_1;
+    }
+    public static void setNew_thread_1(Thread new_thread_1) {
+        DefaultGUIController.new_thread_1 = new_thread_1;
+    }*/
+
 
     private void buildDeleteWindow(Window window) {
         Stage deleteStage = new Stage();

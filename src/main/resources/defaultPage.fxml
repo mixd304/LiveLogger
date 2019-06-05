@@ -13,7 +13,12 @@
         <menus>
           <Menu mnemonicParsing="false" text="Daten">
             <items>
-              <MenuItem fx:id="newButton" mnemonicParsing="false" onAction="#menue_newButtonClicked" text="Neu" />
+                  <Menu mnemonicParsing="false" text="Neu">
+                    <items>
+                      <MenuItem fx:id="newButtonOrdner" mnemonicParsing="false" onAction="#menue_newButtonOrdner_Clicked" text="Ordner" />
+                    <MenuItem fx:id="newButtonVerbindung" mnemonicParsing="false" onAction="#menue_newButtonVerbindung_Clicked" text="Verbindung" />
+                    </items>
+                  </Menu>
                   <MenuItem fx:id="deleteButton" mnemonicParsing="false" onAction="#menue_deleteButtonClicked" text="Löschen" />
             </items>
           </Menu>

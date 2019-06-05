@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class ModelContainer {
-    private String speicherort = "C:/Projekte/GEE/LiveLogger/ordner.json";
+    private String speicherort = "ordner.json";
     private ArrayList<Ordner> ordnerList = new ArrayList<>();
 
     public ResultBoolean addOrdner(Ordner ordner) {
         try {
             this.ordnerList.add(ordner);
-
+            safeOrdner();
             System.out.println("[INFO]   Neuer Ordner erfolgreich erstellt!");
             return new ResultBoolean(true, "Neuer Ordner angelegt!");
         } catch (Exception e) {
@@ -38,11 +38,26 @@ public class ModelContainer {
                 ordnerList.remove(ordner);
 
                 System.out.println("[INFO]   Der Ordner mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
+                safeOrdner();
                 return new ResultBoolean(true, "Ordner gelöscht!");
             }
         }
         System.out.println("[FEHLER] Der Ordner mit der UUID " + uuid + " konnte nicht gelöscht werden!");
+        safeOrdner();
         return new ResultBoolean(false, "Fehler beim Löschen des Ordners!");
+
+    }
+
+    public void deleteVerbindungByUUID(UUID uuid) {
+        for (Ordner ordner: this.ordnerList) {
+            for (Verbindung verbindung: ordner.getList()) {
+                if(verbindung.getUuid().equals(uuid)) {
+                    ordner.deleteVerbindungByUUID(uuid);
+                    break;
+                }
+            }
+        }
+        safeOrdner();
     }
 
     public ResultBoolean addVerbindungToOrdner(Ordner ordner, Verbindung verbindung) {
@@ -58,6 +73,15 @@ public class ModelContainer {
         ordner.addVerbindung(verbindung);
         ordnerList.add(ordner);
         return new ResultBoolean(true, "Verbindung und Ordner erfolgreich angelegt!");
+    }
+
+    public Ordner getOrdnerByUUID(UUID uuid) {
+        for (Ordner ordner: ordnerList) {
+            if(ordner.getUuid().equals(uuid)) {
+                return ordner;
+            }
+        }
+        return null;
     }
 
     public Verbindung getVerbindungByUUID(UUID uuid) {
@@ -96,32 +120,12 @@ public class ModelContainer {
         return null;
     }
 
-    public void deleteVerbindungByUUID(UUID uuid) {
-        for (Ordner ordner: this.ordnerList) {
-            for (Verbindung verbindung: ordner.getList()) {
-                if(verbindung.getUuid().equals(uuid)) {
-                    ordner.deleteVerbindungByUUID(uuid);
-                    break;
-                }
-            }
-        }
-        safeOrdner();
-    }
-
     public boolean safeOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // Java objects to JSON file
             mapper.writeValue(new File(this.speicherort), this.ordnerList);
             System.out.println("[INFO]   Liste mit Ordnern erfolgreich gespeichert!");
-
-            // Java objects to JSON string - compact-print
-            //String jsonString = mapper.writeValueAsString(ordnerList);
-            //System.out.println(jsonString);
-
-            // Java objects to JSON string - pretty-print
-            //String jsonInString2 = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(ordnerList);
-            //System.out.println(jsonInString2);
 
             return true;
         } catch (Exception e) {

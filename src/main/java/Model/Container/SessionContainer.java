@@ -29,6 +29,10 @@ public class SessionContainer {
         this.verbindungsList.remove(UUID.fromString(checked.getId()));
     }
 
+    public void removeVerbindungByUUID(UUID uuid) {
+        this.verbindungsList.remove(uuid);
+    }
+
     public String getPageURL() {
         if(verbindungsList.size() == 0) {
             return this.url_defaultSecondPage;

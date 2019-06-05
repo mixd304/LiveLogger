@@ -1,14 +1,11 @@
 package GUI.SecondPaneController;
 
-import GUI.StartProgramm;
-import Model.Container.ModelContainer;
+import GUI.Dialogs;
+import ProgrammStart.StartProgramm;
 import GUI.DefaultGUIController;
 import Model.Ordner;
 import Model.Verbindung;
-import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -22,7 +19,7 @@ import java.util.UUID;
 public class NewVerbindungPage_Controller {
     @FXML Pane newVerbindungPage;
     // alle Eingabefelder
-    @FXML ComboBox<Ordner> ordner;
+    @FXML ComboBox<String> ordner;
     @FXML TextField bezeichnung;
     @FXML TextField host;
     @FXML TextField port;
@@ -44,7 +41,7 @@ public class NewVerbindungPage_Controller {
     // TODO "Anlegen von neuen Ordnern"
     private void fillChoiceBoxOrdner() {
         for (Ordner o: DefaultGUIController.getModelContainer().getOrdnerList()) {
-            ordner.getItems().add(o);
+            ordner.getItems().add(o.getBezeichnung());
         }
     }
 
@@ -65,7 +62,27 @@ public class NewVerbindungPage_Controller {
     private void newVerbindung_submitButtonClicked() {
         System.out.println("[AKTION] Neue Verbindung - Submit Button Clicked");
         try {
-            Ordner new_ordner = ordner.getSelectionModel().getSelectedItem();
+            int index = ordner.getSelectionModel().getSelectedIndex();
+            Ordner new_ordner = new Ordner();
+            if(index == -1) {
+                if(ordner.getValue().equals("")) {
+                    Dialogs.confirmDialog("Bitte wählen Sie einen Ordner aus!");
+                } else {
+                    new_ordner.setBezeichnung(ordner.getValue());
+                    new_ordner.setUuid(UUID.randomUUID());
+                    DefaultGUIController.getModelContainer().addOrdner(new_ordner);
+                }
+            } else {
+                Ordner ordnerByIndex = DefaultGUIController.getModelContainer().getOrdnerList().get(index);
+                new_ordner = DefaultGUIController.getModelContainer().getOrdnerList().get(index);
+                if(!ordnerByIndex.getBezeichnung().equals(ordner.getValue())) {
+                    new_ordner.setBezeichnung(ordner.getValue());
+                    new_ordner.setUuid(UUID.randomUUID());
+                    DefaultGUIController.getModelContainer().addOrdner(new_ordner);
+                } else {
+                    new_ordner = ordnerByIndex;
+                }
+            }
             Verbindung new_verbindung = getInserts();
 
             System.out.println(DefaultGUIController.getModelContainer().addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());

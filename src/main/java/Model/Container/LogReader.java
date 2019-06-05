@@ -1,9 +1,8 @@
 package Model.Container;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import ProgrammStart.Main;
+import com.jcraft.jsch.*;
+import javafx.scene.control.ListView;
 
 import java.io.*;
 import java.util.Properties;
@@ -12,13 +11,10 @@ public class LogReader {
     public LogReader() {
     }
 
-    public void readLinux(String pfad, String host, String user, String password) {
+    public static void readLinux(ListView<String> textArea, String pfad, String host, String user, String password) {
         try {
-            //String command = "tail -f -n 2000 /opt/custom/tomcat/base/logs/catalina.out";
-            String command = "tail -f -n 2000 " + pfad;
-            host = "10.4.245.16";
-            user = "root";
-            password = "start-1234";
+            System.out.println("COUNT = " + Thread.activeCount());
+            String command = "tail -f -n 50 " + pfad;
 
             JSch jsch = new JSch();
             Session session = jsch.getSession(user, host, 22);
@@ -44,22 +40,35 @@ public class LogReader {
                 String line = null;
 
                 while ((line = bufferedReader.readLine()) != null) {
-                    System.out.println(line);
+                    textArea.getItems().add(line + "\n");
+                    Thread.sleep(2);
                 }
                 bufferedReader.close();
                 inputReader.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (IllegalStateException e1) {
+                System.out.println("IllegalStateException");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                System.out.println("TEST");
             }
 
             channel.disconnect();
             session.disconnect();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (JSchException e1) {
+            if(e1.getCause().getMessage().contains("Connection timed out: connect")) {
+                System.out.println("Auth fail - Falscher Host");
+            } else if(e1.getCause().getMessage().contains("Auth fail")) {
+                System.out.println("Auth fail - Falscher Benutzername");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void readWindows(String pfad, String host, String user, String password) {
+    public static void readWindows(String pfad, String host, String user, String password) {
 
         //Auslesen der Datei
         try {
@@ -82,5 +91,10 @@ public class LogReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void testAppend(ListView<String> textArea) {
+        textArea.getItems().add("TestAPPEND");
+        textArea.getItems().add("TestAPPEND");
     }
 }

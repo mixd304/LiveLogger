@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane fx:id="logFilePage_2" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.SecondPaneController.LogFilePage_2_Controller">
+<AnchorPane fx:id="logFilePage_2" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.SecondPaneController.LogFilePages.LogFilePage_2_Controller">
    <children>
       <GridPane gridLinesVisible="true" prefHeight="800.0" prefWidth="800.0">
         <columnConstraints>
