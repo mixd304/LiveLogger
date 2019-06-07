@@ -88,13 +88,13 @@ public class NewVerbindungPage_Controller {
             System.out.println(DefaultGUIController.getModelContainer().addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());
             DefaultGUIController.getModelContainer().safeOrdner();
 
-            StartProgramm.restart();
+            DefaultGUIController.rebuildGUI();
 
-            List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
-            parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
+            // TODO
+            //List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
+            //parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
 
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -125,12 +125,12 @@ public class NewVerbindungPage_Controller {
 
             DefaultGUIController.getModelContainer().editVerbindung(old_verbindung, new_verbindung);
             DefaultGUIController.getModelContainer().safeOrdner();
+            DefaultGUIController.rebuildGUI();
 
-            StartProgramm.restart();
-
-            List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
-            parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
-        } catch (IOException e) {
+            // TODO
+            //List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
+            //parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -139,8 +139,11 @@ public class NewVerbindungPage_Controller {
     public void cancelButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[AKTION] Cancel Button Clicked");
 
+        // TODO
+        DefaultGUIController.getSessionContainer().safeLogs();
         List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
         parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
+        DefaultGUIController.getSessionContainer().rebuildLogs();
     }
 
     public void editVerbindung(Verbindung verbindung) {

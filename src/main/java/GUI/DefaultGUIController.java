@@ -48,6 +48,15 @@ public class DefaultGUIController {
         buildMenue();
     }
 
+    public static void rebuildGUI() {
+        try {
+            sessionContainer.safeLogs();
+            StartProgramm.restart();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Methode um das Menü mit TitledPanes (als Ordner) und VBoxen mit CheckBoxen als Verbindungen generiert
      */
@@ -81,7 +90,13 @@ public class DefaultGUIController {
                 vboxTitledPanes.getChildren().add(titledPane);
             }
 
-            SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getPageURL())));
+            // TODO RELOAD der angezeigten Logs
+            if(uuids.size() == 0) {
+                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+            } else {
+                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                sessionContainer.rebuildLogs();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,15 +143,16 @@ public class DefaultGUIController {
                 if(Dialogs.confirmDialog("Soll der Ordner '" + tP.getText() + "' wirklich gelöscht werden? \n \n" +
                         "WARNUNG: Hierbei werden alle zugehörigen Verbindungen ebenfalls gelöscht!")) {
                     UUID uuid = UUID.fromString(tP.getId());
+
                     for (Verbindung verbindung: modelContainer.getOrdnerByUUID(uuid).getList()) {
                         if(sessionContainer.getCheckedVerbindungenUUIDs().contains(verbindung.getUuid())) {
-                                sessionContainer.removeVerbindungByUUID(uuid);
+                                sessionContainer.removeVerbindungByUUID(verbindung.getUuid());
                         }
                     }
                     modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
+                    sessionContainer.safeLogs();
                     buildMenue();
                 }
-                // TODO: Ordner Löschen POPUP
             }
         });
 
@@ -287,11 +303,8 @@ public class DefaultGUIController {
                 new_ordner.setBezeichnung(ordnerData[0]);
                 new_ordner.setUuid(UUID.randomUUID());
                 modelContainer.addOrdner(new_ordner);
-                try {
-                    StartProgramm.restart();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                rebuildGUI();
                 break;
             }
 
@@ -361,12 +374,19 @@ public class DefaultGUIController {
     public void refreshLogs(CheckBox checked) {
         System.out.println("[ACTION] CheckBox geklickt - Source = " + checked);
         try {
+            int anz = sessionContainer.getCheckedVerbindungenUUIDs().size();
+
+            if(anz == 1 && !checked.isSelected()) {
+                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+            } else if(anz == 0 && checked.isSelected()) {
+                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+            }
+
             if(checked.isSelected()) {
                 sessionContainer.addVerbindung(checked);
             } else if(!checked.isSelected()) {
                 sessionContainer.removeVerbindung(checked);
             }
-            SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getPageURL())));
         } catch (IOException e) {
             e.printStackTrace();
         }

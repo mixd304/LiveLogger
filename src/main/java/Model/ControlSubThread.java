@@ -1,21 +1,39 @@
-package Model.Container;
+package Model;
 
 import com.jcraft.jsch.*;
+import com.jcraft.jsch.Session;
 import javafx.scene.control.ListView;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LogReader {
+public class ControlSubThread implements Runnable {
     private ListView<String> listView;
-    boolean running;
 
-    public LogReader(ListView<String> listView) {
+    private Thread worker;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private int interval;
+
+    public ControlSubThread(ListView<String> listView, int sleepInterval) {
         this.listView = listView;
+        this.interval = sleepInterval;
+    }
+
+    public void start() {
+        worker = new Thread(this);
+        worker.start();
+    }
+
+    public void stop() {
+        running.set(false);
     }
 
     public void readLinux(String pfad, String host, String user, String password) {
-        running = true;
+        running.set(true);
         try {
             System.out.println("COUNT = " + Thread.activeCount());
             String command = "tail -f -n 50 " + pfad;
@@ -43,11 +61,9 @@ public class LogReader {
                 BufferedReader bufferedReader = new BufferedReader(inputReader);
                 String line = null;
 
-                System.out.println(running);
-                while (((line = bufferedReader.readLine()) != null) && running) {
-
+                while (((line = bufferedReader.readLine()) != null) && running.get()) {
                     this.listView.getItems().add(line + "\n");
-                    Thread.sleep(2);
+                    Thread.sleep(interval);
                 }
                 bufferedReader.close();
                 inputReader.close();
@@ -75,7 +91,7 @@ public class LogReader {
     }
 
     public void readWindows(String pfad, String host, String user, String password) {
-        running = true;
+
         //Auslesen der Datei
         /*try {
             File file = new File(pfad);
@@ -97,7 +113,7 @@ public class LogReader {
         } catch (Exception e) {
             e.printStackTrace();
         }*/
-        while (running) {
+        while (true) {
             try {
                 this.listView.getItems().add("Windows Log Zeile");
                 Thread.sleep(100);
@@ -107,15 +123,18 @@ public class LogReader {
         }
     }
 
-    public void stop() {
-        this.running = false;
-        Thread.currentThread().interrupt();
-        System.out.println("LogReader gestoppt");
+    public void interrupt() {
+        running.set(false);
+        worker.interrupt();
     }
 
-    public void testAppend() {
-        this.listView.getItems().add("TestAPPEND");
-        this.listView.getItems().add("TestAPPEND");
+    boolean isRunning() {
+        return running.get();
+    }
+
+    @Override
+    public void run() {
+
     }
 
     public ListView<String> getListView() {

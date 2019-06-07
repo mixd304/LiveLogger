@@ -2,7 +2,6 @@ package ProgrammStart;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 public class Main {
     private static ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -14,6 +13,7 @@ public class Main {
                 new StartProgramm().ProgrammStart();
             }
         });
+        //new StartProgramm().ProgrammStart();
     }
 
     public static ExecutorService getExecutor() {
