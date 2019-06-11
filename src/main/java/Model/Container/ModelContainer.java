@@ -1,8 +1,8 @@
 package Model.Container;
 
-import Model.Ordner;
-import Model.ResultBoolean;
-import Model.Verbindung;
+import Model.Data.Ordner;
+import Model.Data.ResultBoolean;
+import Model.Data.Verbindung;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;

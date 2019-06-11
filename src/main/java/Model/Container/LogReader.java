@@ -1,6 +1,7 @@
 package Model.Container;
 
 import com.jcraft.jsch.*;
+import javafx.application.Platform;
 import javafx.scene.control.ListView;
 
 import java.io.*;
@@ -8,14 +9,14 @@ import java.util.Properties;
 
 public class LogReader {
     private ListView<String> listView;
-    boolean running;
+    Thread thread;
 
     public LogReader(ListView<String> listView) {
         this.listView = listView;
+        thread = Thread.currentThread();
     }
 
     public void readLinux(String pfad, String host, String user, String password) {
-        running = true;
         try {
             System.out.println("COUNT = " + Thread.activeCount());
             String command = "tail -f -n 50 " + pfad;
@@ -43,10 +44,8 @@ public class LogReader {
                 BufferedReader bufferedReader = new BufferedReader(inputReader);
                 String line = null;
 
-                System.out.println(running);
-                while (((line = bufferedReader.readLine()) != null) && running) {
-
-                    this.listView.getItems().add(line + "\n");
+                while (((line = bufferedReader.readLine()) != null)) {
+                    this.writeLine(line);
                     Thread.sleep(2);
                 }
                 bufferedReader.close();
@@ -75,7 +74,6 @@ public class LogReader {
     }
 
     public void readWindows(String pfad, String host, String user, String password) {
-        running = true;
         //Auslesen der Datei
         /*try {
             File file = new File(pfad);
@@ -97,25 +95,35 @@ public class LogReader {
         } catch (Exception e) {
             e.printStackTrace();
         }*/
-        while (running) {
+        while (true) {
             try {
-                this.listView.getItems().add("Windows Log Zeile");
-                Thread.sleep(100);
+                this.writeLine("Windows Log Zeile");
+                if(!Thread.interrupted()) {
+                    Thread.sleep(100);
+                } else {
+                    break;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void stop() {
-        this.running = false;
-        Thread.currentThread().interrupt();
-        System.out.println("LogReader gestoppt");
+    private void writeLine(String line) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                listView.getItems().add(line);
+            }
+        });
     }
 
-    public void testAppend() {
-        this.listView.getItems().add("TestAPPEND");
-        this.listView.getItems().add("TestAPPEND");
+    public void start() {
+        thread.start();
+    }
+
+    public void stop() {
+        thread.interrupt();
     }
 
     public ListView<String> getListView() {

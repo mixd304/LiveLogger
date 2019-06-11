@@ -1,9 +1,9 @@
 package Model.Container;
 
-import GUI.DefaultGUIController;
-import GUI.Dialogs;
-import Model.logSession;
-import Model.Verbindung;
+import Controller.DefaultGUIController;
+import Controller.Dialogs;
+import Model.Data.Verbindung;
+import Model.Data.LogSession;
 import ProgrammStart.Main;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -18,10 +18,10 @@ public class SessionContainer {
     private String url_logFilePage = "/SecondPane/logFilePage.fxml";
     private ArrayList<ObservableList<String>> ausgaben = new ArrayList<ObservableList<String>>();
     private GridPane logFilePage;
-    private logSession logSession1;
-    private logSession logSession2;
-    private logSession logSession3;
-    private logSession logSession4;
+    private LogSession logSession1;
+    private LogSession logSession2;
+    private LogSession logSession3;
+    private LogSession logSession4;
     private LogReader logReader1;
     private LogReader logReader2;
     private LogReader logReader3;
@@ -71,44 +71,44 @@ public class SessionContainer {
         int pos = this.verbindungsList.indexOf(verbindung.getUuid());
         System.out.println("POS = " + pos);
         if (pos == 0) {
-            openSession(logSession1, verbindung);
+            openSession(logSession1, logReader1, verbindung);
         } else if (pos == 1) {
-            openSession(logSession2, verbindung);
+            openSession(logSession2, logReader2, verbindung);
         } else if (pos == 2) {
-            openSession(logSession3, verbindung);
+            openSession(logSession3, logReader3, verbindung);
         } else if (pos == 3) {
-            openSession(logSession4, verbindung);
+            openSession(logSession4, logReader4, verbindung);
         }
     }
 
-    private void openSession(logSession logSession, Verbindung verbindung) {
-        logSession.setVerbindung(verbindung);
-        logSession.setId(verbindung.getUuid().toString());
-        logSession.getLabel().setText(verbindung.getBezeichnung());
-        logSession.getListView().getItems().add("Hier steht nachher die Logausgabe der Verbindung");
-        logSession.getListView().getItems().add("Bezeichnung: " + verbindung.getBezeichnung() + " - UUID: " + verbindung.getUuid());
-        startNewLogReader(logSession);
+    private void openSession(LogSession LogSession, LogReader logReader, Verbindung verbindung) {
+        LogSession.setVerbindung(verbindung);
+        LogSession.setId(verbindung.getUuid().toString());
+        LogSession.getLabel().setText(verbindung.getBezeichnung());
+        LogSession.getListView().getItems().add("Hier steht nachher die Logausgabe der Verbindung");
+        LogSession.getListView().getItems().add("Bezeichnung: " + verbindung.getBezeichnung() + " - UUID: " + verbindung.getUuid());
+        startLogReader(logReader, verbindung);
     }
 
-    private void startNewLogReader(logSession logSession) {
-        /*logSession.setControlSubThread(new ControlSubThread(logSession.getListView(), 10));
-        logSession.getControlSubThread().start();
-        if(logSession.getVerbindung().getBetriebssystem().equals("Linux")) {
-            logSession.getControlSubThread().readLinux(logSession.getVerbindung().getLogpath(), logSession.getVerbindung().getHost(), logSession.getVerbindung().getBenutzername(), logSession.getVerbindung().getPasswort());
+    private void startLogReader(LogReader logReader, Verbindung verbindung) {
+        logReader.start();
+        if(verbindung.getBetriebssystem().equals("Linux")) {
+            logReader.readLinux(verbindung.getLogpath(), verbindung.getHost(), verbindung.getBenutzername(), verbindung.getPasswort());
         } else {
-            logSession.getControlSubThread().readWindows(logSession.getVerbindung().getLogpath(), logSession.getVerbindung().getHost(), logSession.getVerbindung().getBenutzername(), logSession.getVerbindung().getPasswort());
-        }*/
-        Main.getExecutor().execute(new Runnable() {
+            logReader.readWindows(verbindung.getLogpath(), verbindung.getHost(), verbindung.getBenutzername(), verbindung.getPasswort());
+        }
+
+        /*Main.executor.execute(new Runnable() {
             @Override
             public void run() {
-                logSession.setLogReader(new LogReader(logSession.getListView()));
-                if(logSession.getVerbindung().getBetriebssystem().equals("Linux")) {
-                    logSession.getLogReader().readLinux(logSession.getVerbindung().getLogpath(), logSession.getVerbindung().getHost(), logSession.getVerbindung().getBenutzername(), logSession.getVerbindung().getPasswort());
+                LogSession.setLogReader(new LogReader(LogSession));
+                if(LogSession.getVerbindung().getBetriebssystem().equals("Linux")) {
+                    LogSession.getLogReader().readLinux(LogSession.getVerbindung().getLogpath(), LogSession.getVerbindung().getHost(), LogSession.getVerbindung().getBenutzername(), LogSession.getVerbindung().getPasswort());
                 } else {
-                    logSession.getLogReader().readWindows(logSession.getVerbindung().getLogpath(), logSession.getVerbindung().getHost(), logSession.getVerbindung().getBenutzername(), logSession.getVerbindung().getPasswort());
+                    LogSession.getLogReader().readWindows(LogSession.getVerbindung().getLogpath(), LogSession.getVerbindung().getHost(), LogSession.getVerbindung().getBenutzername(), LogSession.getVerbindung().getPasswort());
                 }
             }
-        });
+        });*/
     }
 
     public void closeLog(UUID uuid) {
@@ -116,12 +116,6 @@ public class SessionContainer {
         int pos = this.verbindungsList.indexOf(uuid);
         System.out.println("POS = " + pos);
         if (pos == 0) {
-            System.out.println("logSession1:");
-            logSession1.print();
-            System.out.println("logSession2:");
-            logSession2.print();
-            System.out.println("logSession3:");
-            logSession3.print();
             copySession(logSession2, logSession1);
             copySession(logSession3, logSession2);
             copySession(logSession4, logSession3);
@@ -138,24 +132,21 @@ public class SessionContainer {
         }
     }
 
-    private void copySession(logSession logSession_old, logSession logSession_new) {
+    private void copySession(LogSession logSession_old, LogSession logSession_new) {
         clearSession(logSession_new);
         logSession_new.setId(logSession_old.getId());
         logSession_new.setVerbindung(logSession_old.getVerbindung());
         logSession_new.getLabel().setText(logSession_old.getLabel().getText());
         logSession_new.getListView().getItems().addAll(logSession_old.getListView().getItems());
-        //logSession_new.setControlSubThread(logSession_old.getControlSubThread());
-        logSession_new.getListView().toString();
         logSession_new.setLogReader(logSession_old.getLogReader());
     }
 
-    private void clearSession(logSession logSession) {
-        if(logSession.getLogReader() != null) {
-            logSession.getLogReader().stop();
+    private void clearSession(LogSession LogSession) {
+        LogSession.getListView().getItems().clear();
+        LogSession.getLabel().setText("");
+        if(LogSession.getLogReader() != null) {
+            LogSession.getLogReader().stop();
         }
-        logSession.getLabel().setText("");
-        logSession.getListView().getItems().clear();
-        //logSession.getControlSubThread().interrupt();
     }
 
     private void buildListViews() {
@@ -271,16 +262,28 @@ public class SessionContainer {
     public void setLogFilePage(GridPane logFilePage) {
         this.logFilePage = logFilePage;
     }
-    public void setLogSession1(logSession logSession1) {
+    public void setLogSession1(LogSession logSession1) {
         this.logSession1 = logSession1;
     }
-    public void setLogSession2(logSession logSession2) {
+    public void setLogSession2(LogSession logSession2) {
         this.logSession2 = logSession2;
     }
-    public void setLogSession3(logSession logSession3) {
+    public void setLogSession3(LogSession logSession3) {
         this.logSession3 = logSession3;
     }
-    public void setLogSession4(logSession logSession4) {
+    public void setLogSession4(LogSession logSession4) {
         this.logSession4 = logSession4;
+    }
+    public void setLogReader1(LogReader logReader1) {
+        this.logReader1 = logReader1;
+    }
+    public void setLogReader2(LogReader logReader2) {
+        this.logReader2 = logReader2;
+    }
+    public void setLogReader3(LogReader logReader3) {
+        this.logReader3 = logReader3;
+    }
+    public void setLogReader4(LogReader logReader4) {
+        this.logReader4 = logReader4;
     }
 }

@@ -1,9 +1,9 @@
-package GUI;
+package Controller;
 
 import Model.Container.ModelContainer;
 import Model.Container.SessionContainer;
-import Model.Ordner;
-import Model.Verbindung;
+import Model.Data.Ordner;
+import Model.Data.Verbindung;
 import ProgrammStart.StartProgramm;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -44,7 +44,7 @@ public class DefaultGUIController {
 
     @FXML
     private void initialize() {
-        System.out.println("[GUI] Default Page Initialized");
+        System.out.println("[Controller] Default Page Initialized");
         buildMenue();
     }
 

@@ -1,10 +1,9 @@
-package GUI.SecondPaneController;
+package Controller.SecondPaneController;
 
-import GUI.Dialogs;
-import ProgrammStart.StartProgramm;
-import GUI.DefaultGUIController;
-import Model.Ordner;
-import Model.Verbindung;
+import Controller.Dialogs;
+import Controller.DefaultGUIController;
+import Model.Data.Ordner;
+import Model.Data.Verbindung;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,7 +31,7 @@ public class NewVerbindungPage_Controller {
 
     @FXML
     private void initialize() {
-        System.out.println("[GUI] newVerbindungPage geladen");
+        System.out.println("[Controller] newVerbindungPage geladen");
         DefaultGUIController.getModelContainer().loadOrdner();
         fillChoiceBoxOrdner();
         fillChoiceBoxBetriebssystem();
