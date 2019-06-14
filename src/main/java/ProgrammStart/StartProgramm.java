@@ -41,7 +41,7 @@ public class StartProgramm extends Application {
         }
 
         stage.setTitle("LiveLogger");
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setScene(new Scene(root));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override

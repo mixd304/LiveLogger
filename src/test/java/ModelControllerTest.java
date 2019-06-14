@@ -9,6 +9,10 @@ public class ModelControllerTest {
 
 
     public static void main(String args[]) {
+        ModelContainer modelContainer = new ModelContainer();
+        modelContainer.loadOrdner();
+        modelContainer.getOrdnerList().get(1).getList().get(3).print();
+
         generateTestData();
 
         System.out.println("=========================================================================");

@@ -4,36 +4,33 @@ import Controller.DefaultGUIController;
 import Controller.Dialogs;
 import Model.Data.Verbindung;
 import Model.Data.LogSession;
-import ProgrammStart.Main;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class SessionContainer {
-    private ArrayList<UUID> verbindungsList = new ArrayList<UUID>();
+    private ArrayList<Label> labelList = new ArrayList<>();
+    private ArrayList<ListView<String>> listviewList = new ArrayList<>();
+    private GridPane logFilePage;
+
+    private ArrayList<LogSession> logSessionList = new ArrayList<>();
     private String url_defaultSecondPage = "/SecondPane/homepage.fxml";
     private String url_logFilePage = "/SecondPane/logFilePage.fxml";
+
     private ArrayList<ObservableList<String>> ausgaben = new ArrayList<ObservableList<String>>();
-    private GridPane logFilePage;
-    private LogSession logSession1;
-    private LogSession logSession2;
-    private LogSession logSession3;
-    private LogSession logSession4;
-    private LogReader logReader1;
-    private LogReader logReader2;
-    private LogReader logReader3;
-    private LogReader logReader4;
 
     public SessionContainer() {
     }
 
     public void addVerbindung(CheckBox checked) {
-        if (verbindungsList.size() < 4) {
-            this.verbindungsList.add(UUID.fromString(checked.getId()));
-            this.openLog(DefaultGUIController.getModelContainer().getVerbindungByUUID(UUID.fromString(checked.getId())));
+        if (logSessionList.size() < 4) {
+            Verbindung verbindung = DefaultGUIController.getModelContainer().getVerbindungByUUID(UUID.fromString(checked.getId()));
+            this.createNewLogSession(verbindung);
         } else {
             checked.setSelected(false);
             Dialogs.warnDialog("Sie dürfen nur maximal 4 Datein gleichzeitig auswählen!", "Warnung");
@@ -41,130 +38,122 @@ public class SessionContainer {
     }
 
     public String getPageURL() {
-        if (this.verbindungsList.size() == 0) {
+        if (this.logSessionList.size() == 0) {
             return this.url_defaultSecondPage;
         } else {
             return this.url_logFilePage;
         }
     }
 
-    public void removeVerbindung(CheckBox checked) {
-        this.closeLog(UUID.fromString(checked.getId()));
-        this.verbindungsList.remove(UUID.fromString(checked.getId()));
+    public void removeVerbindung(Verbindung verbindung) {
+        LogSession logSession = getLogSessionByID(verbindung.getUuid().toString());
+        int pos = this.logSessionList.indexOf(logSession);
+        if(logSession.getLogReader() != null) {
+            logSession.getLogReader().stop();
+        }
+        logSessionList.remove(logSession);
+
+        // Wenn die 1. Stelle gelöscht wurde
+        if(pos == 0) {
+            // und die neue Anzahl = 1 ist
+            if(logSessionList.size() >= 1) {
+                reset_log(0);
+            } if(logSessionList.size() >= 2) {
+                reset_log(1);
+            } if(logSessionList.size() >= 3) {
+                reset_log(2);
+            }
+        } else if(pos == 1) {
+            if(logSessionList.size() >= 2) {
+                reset_log(1);
+            } if(logSessionList.size() >= 3) {
+                reset_log(2);
+            }
+        } else if(pos == 2) {
+            if(logSessionList.size() >= 3) {
+                reset_log(2);
+            }
+        }
+        listviewList.get(logSessionList.size()).getItems().clear();
+        labelList.get(logSessionList.size()).setText("");
         buildListViews();
     }
 
-    public void removeVerbindungByUUID(UUID uuid) {
-        System.out.println("removeVerbindungByUUID aufgerufen");
-        this.closeLog(uuid);
-        this.verbindungsList.remove(uuid);
-        buildListViews();
+    private void reset_log(int number_of_log) {
+        logSessionList.get(number_of_log).getLogReader().setListView(listviewList.get(number_of_log));
+        listviewList.get(number_of_log).getItems().setAll(logSessionList.get(number_of_log).getListView().getItems());
+        logSessionList.get(number_of_log).setListView(listviewList.get(number_of_log));
+        labelList.get(number_of_log).setText(logSessionList.get(number_of_log).getLabel().getText());
+        logSessionList.get(number_of_log).setLabel(labelList.get(number_of_log));
+    }
+
+    private LogSession getLogSessionByID(String id) {
+        for (LogSession lS: logSessionList) {
+            if(lS.getId().equals(id)) {
+                return lS;
+            }
+        }
+        return null;
     }
 
     public ArrayList<UUID> getCheckedVerbindungenUUIDs() {
-        return this.verbindungsList;
-    }
-
-    public void openLog(Verbindung verbindung) {
-        buildListViews();
-        System.out.println("openLog geöffnet");
-        int pos = this.verbindungsList.indexOf(verbindung.getUuid());
-        System.out.println("POS = " + pos);
-        if (pos == 0) {
-            openSession(logSession1, logReader1, verbindung);
-        } else if (pos == 1) {
-            openSession(logSession2, logReader2, verbindung);
-        } else if (pos == 2) {
-            openSession(logSession3, logReader3, verbindung);
-        } else if (pos == 3) {
-            openSession(logSession4, logReader4, verbindung);
+        ArrayList<UUID> list = new ArrayList<>();
+        for (LogSession lS: this.logSessionList) {
+            list.add(lS.getVerbindung().getUuid());
         }
+        return list;
     }
 
-    private void openSession(LogSession LogSession, LogReader logReader, Verbindung verbindung) {
-        LogSession.setVerbindung(verbindung);
-        LogSession.setId(verbindung.getUuid().toString());
-        LogSession.getLabel().setText(verbindung.getBezeichnung());
-        LogSession.getListView().getItems().add("Hier steht nachher die Logausgabe der Verbindung");
-        LogSession.getListView().getItems().add("Bezeichnung: " + verbindung.getBezeichnung() + " - UUID: " + verbindung.getUuid());
-        startLogReader(logReader, verbindung);
-    }
+    public void createNewLogSession(Verbindung verbindung) {
+        int pos = this.logSessionList.size();
+        LogSession logSession = new LogSession();
+        logSession.setId(verbindung.getUuid().toString());
+        logSession.setVerbindung(verbindung);
+        if (pos == 0) {
+            logSession.setLabel(labelList.get(0));
+            logSession.setListView(listviewList.get(0));
+        } else if (pos == 1) {
+            logSession.setLabel(labelList.get(1));
+            logSession.setListView(listviewList.get(1));
+        } else if (pos == 2) {
+            logSession.setLabel(labelList.get(2));
+            logSession.setListView(listviewList.get(2));
+        } else if (pos == 3) {
+            logSession.setLabel(labelList.get(3));
+            logSession.setListView(listviewList.get(3));
+        }
+        logSession.getLabel().setText(verbindung.getBezeichnung());
+        logSession.getListView().getItems().add("Hier steht nachher die Logausgabe der Verbindung");
 
-    private void startLogReader(LogReader logReader, Verbindung verbindung) {
-        logReader.start();
+        LogReader logReader = new LogReader(logSession.getListView());
+        logReader.setOutput(verbindung.getBezeichnung());
+
         if(verbindung.getBetriebssystem().equals("Linux")) {
             logReader.readLinux(verbindung.getLogpath(), verbindung.getHost(), verbindung.getBenutzername(), verbindung.getPasswort());
-        } else {
+        } else if(verbindung.getBetriebssystem().equals("Windows")) {
             logReader.readWindows(verbindung.getLogpath(), verbindung.getHost(), verbindung.getBenutzername(), verbindung.getPasswort());
+        } else {
+            logSession.getListView().getItems().add("Ausgewähltes Betriebssystem wird (noch) nicht unterstützt!");
         }
 
-        /*Main.executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                LogSession.setLogReader(new LogReader(LogSession));
-                if(LogSession.getVerbindung().getBetriebssystem().equals("Linux")) {
-                    LogSession.getLogReader().readLinux(LogSession.getVerbindung().getLogpath(), LogSession.getVerbindung().getHost(), LogSession.getVerbindung().getBenutzername(), LogSession.getVerbindung().getPasswort());
-                } else {
-                    LogSession.getLogReader().readWindows(LogSession.getVerbindung().getLogpath(), LogSession.getVerbindung().getHost(), LogSession.getVerbindung().getBenutzername(), LogSession.getVerbindung().getPasswort());
-                }
-            }
-        });*/
-    }
-
-    public void closeLog(UUID uuid) {
-        System.out.println("closeLog geöffnet");
-        int pos = this.verbindungsList.indexOf(uuid);
-        System.out.println("POS = " + pos);
-        if (pos == 0) {
-            copySession(logSession2, logSession1);
-            copySession(logSession3, logSession2);
-            copySession(logSession4, logSession3);
-            clearSession(logSession4);
-        } else if (pos == 1) {
-            copySession(logSession3, logSession2);
-            copySession(logSession4, logSession3);
-            clearSession(logSession4);
-        } else if (pos == 2) {
-            copySession(logSession4, logSession3);
-            clearSession(logSession4);
-        } else if (pos == 3) {
-            clearSession(logSession4);
-        }
-    }
-
-    private void copySession(LogSession logSession_old, LogSession logSession_new) {
-        clearSession(logSession_new);
-        logSession_new.setId(logSession_old.getId());
-        logSession_new.setVerbindung(logSession_old.getVerbindung());
-        logSession_new.getLabel().setText(logSession_old.getLabel().getText());
-        logSession_new.getListView().getItems().addAll(logSession_old.getListView().getItems());
-        logSession_new.setLogReader(logSession_old.getLogReader());
-    }
-
-    private void clearSession(LogSession LogSession) {
-        LogSession.getListView().getItems().clear();
-        LogSession.getLabel().setText("");
-        if(LogSession.getLogReader() != null) {
-            LogSession.getLogReader().stop();
-        }
+        logSession.setLogReader(logReader);
+        this.logSessionList.add(logSession);
+        buildListViews();
     }
 
     private void buildListViews() {
-        if (this.getCheckedVerbindungenUUIDs().size() == 1) {
-            System.out.println("ANZAHL = 1");
+        if(this.logSessionList.size() == 0) {
+
+        } else if (this.logSessionList.size() == 1) {
             buildListViews_1();
-        } else if (this.getCheckedVerbindungenUUIDs().size() == 2) {
-            System.out.println("ANZAHL = 2");
+        } else if (this.logSessionList.size() == 2) {
             buildListViews_2();
-        } else if (this.getCheckedVerbindungenUUIDs().size() == 3) {
-            System.out.println("ANZAHL = 3");
+        } else if (this.logSessionList.size() == 3) {
             buildListViews_3();
         } else {
-            System.out.println("ANZAHL = 4");
             buildListViews_3();
         }
     }
-
     private void buildListViews_1() {
         /* Zeile 1 */
         logFilePage.getColumnConstraints().get(0).setPercentWidth(100);
@@ -214,76 +203,46 @@ public class SessionContainer {
         logFilePage.getRowConstraints().get(3).setPrefHeight(logFilePage.getPrefHeight() / 2 - 17);
     }
 
+    // Methode welche vor dem Programmneustart aufgerufen wird
     public void safeLogs() {
-        System.out.println("safeLogs aufgerufen");
+        System.out.println("[INFO] Inhalte werden gesichert");
         this.ausgaben.clear();
-        if (!logSession1.getListView().equals(null)) {
-            this.ausgaben.add(logSession1.getListView().getItems());
-            this.ausgaben.add(logSession2.getListView().getItems());
-            this.ausgaben.add(logSession3.getListView().getItems());
-            this.ausgaben.add(logSession4.getListView().getItems());
-        }
-        for (ObservableList<String> listView : this.ausgaben) {
-            listView.toString();
+        for (LogSession lS: logSessionList) {
+            System.out.println(lS.getListView().getItems().toString());
+            ausgaben.add(lS.getListView().getItems());
         }
     }
 
+    // Methode welche nach dem Programmneustart aufgerufen wird
     public void rebuildLogs() {
-        System.out.println("rebuildLogs aufgerufen " + this.ausgaben.size());
+        System.out.println("[INFO] Inhalte werden neu geladen" + this.ausgaben.size());
         buildListViews();
-        for (ObservableList<String> listView : this.ausgaben) {
-            listView.toString();
-        }
-        if (this.ausgaben.size() >= 1) {
-            logSession1.getListView().getItems().setAll(this.ausgaben.get(0));
-        }
-        if (this.ausgaben.size() >= 2) {
-            logSession2.getListView().getItems().setAll(this.ausgaben.get(1));
-        }
-        if (this.ausgaben.size() >= 3) {
-            logSession3.getListView().getItems().setAll(this.ausgaben.get(2));
-        }
-        if (this.ausgaben.size() >= 4) {
-            logSession4.getListView().getItems().setAll(this.ausgaben.get(3));
+        for(int i = 0; i < logSessionList.size(); i++) {
+            logSessionList.get(i).setListView(listviewList.get(i));
+            logSessionList.get(i).getListView().getItems().setAll(this.ausgaben.get(logSessionList.indexOf(logSessionList.get(i))));
+
+            logSessionList.get(i).getLogReader().setListView(listviewList.get(i));
+
+            logSessionList.get(i).setLabel(labelList.get(i));
+            logSessionList.get(i).getLabel().setText(logSessionList.get(i).getVerbindung().getBezeichnung());
         }
     }
 
+
+    // Getter und Setter
     public String getUrl_defaultSecondPage() {
         return url_defaultSecondPage;
     }
-
     public String getUrl_logFilePage() {
         return url_logFilePage;
     }
-
-    public GridPane getLogFilePage() {
-        return logFilePage;
+    public void setLabelList(ArrayList<Label> labelList) {
+        this.labelList = labelList;
+    }
+    public void setListviewList(ArrayList<ListView<String>> listviewList) {
+        this.listviewList = listviewList;
     }
     public void setLogFilePage(GridPane logFilePage) {
         this.logFilePage = logFilePage;
-    }
-    public void setLogSession1(LogSession logSession1) {
-        this.logSession1 = logSession1;
-    }
-    public void setLogSession2(LogSession logSession2) {
-        this.logSession2 = logSession2;
-    }
-    public void setLogSession3(LogSession logSession3) {
-        this.logSession3 = logSession3;
-    }
-    public void setLogSession4(LogSession logSession4) {
-        this.logSession4 = logSession4;
-    }
-    public void setLogReader1(LogReader logReader1) {
-        this.logReader1 = logReader1;
-    }
-    public void setLogReader2(LogReader logReader2) {
-        this.logReader2 = logReader2;
-    }
-    public void setLogReader3(LogReader logReader3) {
-        this.logReader3 = logReader3;
-    }
-    public void setLogReader4(LogReader logReader4) {
-        this.logReader4 = logReader4;
     }
 }

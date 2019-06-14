@@ -13,6 +13,9 @@ public class LogSession {
     private Verbindung verbindung;
     private LogReader logReader;
 
+    public LogSession() {
+    }
+
     public LogSession(Label label, ListView<String> listView) {
         this.label = label;
         this.listView = listView;
