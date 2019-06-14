@@ -1,5 +1,6 @@
 package ProgrammStart;
 
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -28,7 +29,9 @@ public class StartProgramm extends Application {
 
 
     public static void restart() throws IOException {
-        System.out.println("[GUI] Neubau der Stage eingeleitet");
+        System.out.println("[Controller] Neubau der Stage eingeleitet");
+
+
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(StartProgramm.class.getResource("/defaultPage.fxml"));
         Parent root = loader.load();
@@ -38,7 +41,7 @@ public class StartProgramm extends Application {
         }
 
         stage.setTitle("LiveLogger");
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setScene(new Scene(root));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -47,6 +50,6 @@ public class StartProgramm extends Application {
             }
         });
         stage.show();
-        System.out.println("[GUI] Neubau der Stage abgeschlossen");
+        System.out.println("[Controller] Neubau der Stage abgeschlossen");
     }
 }

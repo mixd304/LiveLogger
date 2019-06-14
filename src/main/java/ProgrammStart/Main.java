@@ -2,9 +2,10 @@ package ProgrammStart;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Main {
-    private static ExecutorService executor = Executors.newFixedThreadPool(5);
+    public static ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public static void main(String[] args) {
         executor.execute(new Runnable() {
@@ -20,7 +21,7 @@ public class Main {
         return executor;
     }
 
-    public static void setExecutor(ExecutorService executor) {
+    public static void setExecutor(ScheduledExecutorService executor) {
         Main.executor = executor;
     }
 }

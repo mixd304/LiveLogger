@@ -1,9 +1,9 @@
-package GUI;
+package Controller;
 
 import Model.Container.ModelContainer;
 import Model.Container.SessionContainer;
-import Model.Ordner;
-import Model.Verbindung;
+import Model.Data.Ordner;
+import Model.Data.Verbindung;
 import ProgrammStart.StartProgramm;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,7 +24,7 @@ import javafx.stage.Window;
 import org.controlsfx.control.CheckModel;
 import org.controlsfx.control.CheckTreeView;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +44,7 @@ public class DefaultGUIController {
 
     @FXML
     private void initialize() {
-        System.out.println("[GUI] Default Page Initialized");
+        System.out.println("[Controller] Default Page Initialized");
         buildMenue();
     }
 
@@ -90,7 +90,6 @@ public class DefaultGUIController {
                 vboxTitledPanes.getChildren().add(titledPane);
             }
 
-            // TODO RELOAD der angezeigten Logs
             if(uuids.size() == 0) {
                 SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
             } else {
@@ -130,6 +129,7 @@ public class DefaultGUIController {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Ordner - Umbenennen geklickt");
+                Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
                 // TODO: Ordner umbenennen POPUP
             }
         });
@@ -146,7 +146,7 @@ public class DefaultGUIController {
 
                     for (Verbindung verbindung: modelContainer.getOrdnerByUUID(uuid).getList()) {
                         if(sessionContainer.getCheckedVerbindungenUUIDs().contains(verbindung.getUuid())) {
-                                sessionContainer.removeVerbindungByUUID(verbindung.getUuid());
+                                sessionContainer.removeVerbindung(verbindung);
                         }
                     }
                     modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
@@ -233,6 +233,7 @@ public class DefaultGUIController {
                     }
                     refreshLogs(cB);
                     modelContainer.deleteVerbindungByUUID(UUID.fromString(cB.getId()));
+                    sessionContainer.safeLogs();
                     buildMenue();
                 }
             }
@@ -245,6 +246,7 @@ public class DefaultGUIController {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Verbindung - Als Vorlage verwenden geklickt");
+                Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
             }
         });
 
@@ -263,14 +265,18 @@ public class DefaultGUIController {
      * @param uuid UUID der Verbindung, welche editiert werden soll
      */
     private void editVerbindung(UUID uuid) {
-        Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
         try {
             Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
+            Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
             Pane pane = (Pane) newLoadedPane.getChildren().get(0);
             pane.setId(uuid.toString());
             ObservableList<Node> felder = pane.getChildren();
 
-            ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerByVerbindung(verbindung));
+            verbindung.print();
+            System.out.println(modelContainer.getOrdnerByVerbindung(verbindung));
+            System.out.println(((ComboBox<Ordner>) felder.get(0)).getItems().toString());
+
+            ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
             ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
             ((TextField) felder.get(2)).setText(verbindung.getHost());
             ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
@@ -280,6 +286,7 @@ public class DefaultGUIController {
             ((CheckBox) felder.get(7)).setSelected(verbindung.isSafePasswort());
             ((TextField) felder.get(8)).setText(verbindung.getLogpath());
             ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
+            ((Button) felder.get(10)).setText("Bearbeiten");
             ((Button) felder.get(10)).setId("editVerbindungButton");
 
             newLoadedPane.getChildren().removeAll();
@@ -385,7 +392,7 @@ public class DefaultGUIController {
             if(checked.isSelected()) {
                 sessionContainer.addVerbindung(checked);
             } else if(!checked.isSelected()) {
-                sessionContainer.removeVerbindung(checked);
+                sessionContainer.removeVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId())));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -417,19 +424,6 @@ public class DefaultGUIController {
     public static ModelContainer getModelContainer() {
         return modelContainer;
     }
-    public static void setModelContainer(ModelContainer modelContainer) {
-            DefaultGUIController.modelContainer = modelContainer;
-        }
-    public static void setSessionContainer(SessionContainer sessionContainer) {
-            DefaultGUIController.sessionContainer = sessionContainer;
-        }
-    /*public static Thread getNew_thread_1() {
-        return new_thread_1;
-    }
-    public static void setNew_thread_1(Thread new_thread_1) {
-        DefaultGUIController.new_thread_1 = new_thread_1;
-    }*/
-
 
     private void buildDeleteWindow(Window window) {
         Stage deleteStage = new Stage();
@@ -504,7 +498,6 @@ public class DefaultGUIController {
         deleteStage.initModality(Modality.APPLICATION_MODAL);
         deleteStage.show();
     }
-
     private void deleteWindowSubmitButtonClicked() {
         System.out.println("[ACTION] Submit Button clicked");
 

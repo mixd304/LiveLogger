@@ -1,6 +1,6 @@
 import Model.Container.ModelContainer;
-import Model.Ordner;
-import Model.Verbindung;
+import Model.Data.Ordner;
+import Model.Data.Verbindung;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -9,6 +9,10 @@ public class ModelControllerTest {
 
 
     public static void main(String args[]) {
+        ModelContainer modelContainer = new ModelContainer();
+        modelContainer.loadOrdner();
+        modelContainer.getOrdnerList().get(1).getList().get(3).print();
+
         generateTestData();
 
         System.out.println("=========================================================================");

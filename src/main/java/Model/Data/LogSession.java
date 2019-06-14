@@ -1,18 +1,22 @@
-package Model;
+package Model.Data;
 
 import Model.Container.LogReader;
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
-public class logSession {
+
+public class LogSession {
     private Label label;
     private ListView<String> listView;
     private String id;
     private Verbindung verbindung;
     private LogReader logReader;
-    private ControlSubThread controlSubThread;
 
-    public logSession(Label label, ListView<String> listView) {
+    public LogSession() {
+    }
+
+    public LogSession(Label label, ListView<String> listView) {
         this.label = label;
         this.listView = listView;
     }
@@ -44,27 +48,25 @@ public class logSession {
         return logReader;
     }
     public void setLogReader(LogReader logReader) {
-        System.out.println("setLogReader geöffnet");
         this.logReader = logReader;
-        if(this.logReader != null) {
-            this.logReader.setListView(this.listView);
-        }
-    }
-    public ControlSubThread getControlSubThread() {
-        return controlSubThread;
-    }
-    public void setControlSubThread(ControlSubThread controlSubThread) {
-        this.controlSubThread = controlSubThread;
     }
 
     public void print() {
-        System.out.println("logSession{" +
+        System.out.println("LogSession{" +
                 "label=" + label +
                 ", listView=" + listView +
                 ", id='" + id + '\'' +
                 ", verbindung=" + verbindung +
                 ", logReader=" + logReader +
-                ", controlSubThread=" + controlSubThread +
                 '}');
+    }
+
+    public void writeLine(String line) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                listView.getItems().add(line);
+            }
+        });
     }
 }

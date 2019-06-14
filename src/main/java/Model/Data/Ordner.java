@@ -1,4 +1,4 @@
-package Model;
+package Model.Data;
 
 import java.util.ArrayList;
 import java.util.UUID;

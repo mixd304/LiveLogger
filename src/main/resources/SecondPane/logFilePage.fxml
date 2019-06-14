@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane fx:id="logFilePage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="600.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.SecondPaneController.LogFilePage_Controller">
+<GridPane fx:id="logFilePage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="600.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.LogFilePage_Controller">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" percentWidth="100.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" percentWidth="0.0" />
