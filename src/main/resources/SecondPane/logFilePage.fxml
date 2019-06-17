@@ -7,41 +7,41 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane fx:id="logFilePage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="600.0" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.LogFilePage_Controller">
+<GridPane fx:id="logFilePage" gridLinesVisible="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.LogFilePage_Controller">
    <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" percentWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" percentWidth="100.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" percentWidth="0.0" />
    </columnConstraints>
    <rowConstraints>
       <RowConstraints maxHeight="17.0" minHeight="17.0" prefHeight="17.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES"/>
+      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
       <RowConstraints maxHeight="17.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
       <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <Label fx:id="log_1_label" maxHeight="17.0" maxWidth="1.7976931348623157E308" minHeight="17.0" minWidth="300.0" prefHeight="17.0" prefWidth="400.0" text="log_1_label" textAlignment="CENTER">
+      <Label fx:id="log_1_label" text="" textAlignment="CENTER">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <ListView fx:id="log_1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="283.0" minWidth="300.0" prefHeight="383.0" prefWidth="400.0" GridPane.rowIndex="1" />
-      <Label fx:id="log_2_label" maxHeight="17.0" maxWidth="1.7976931348623157E308" minHeight="17.0" minWidth="300.0" prefHeight="17.0" prefWidth="400.0" text="log_2_label" textAlignment="CENTER" GridPane.columnIndex="1">
+      <ListView fx:id="log_1" GridPane.rowIndex="1" />
+      <Label fx:id="log_2_label" text="" textAlignment="CENTER" GridPane.columnIndex="1">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <ListView fx:id="log_2" minHeight="283.0" minWidth="300.0" prefHeight="383.0" prefWidth="400.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label fx:id="log_3_label" maxHeight="17.0" maxWidth="1.7976931348623157E308" minHeight="17.0" minWidth="300.0" prefHeight="17.0" prefWidth="400.0" text="log_3_label" textAlignment="CENTER" GridPane.rowIndex="2">
+      <ListView fx:id="log_2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Label fx:id="log_3_label" text="" textAlignment="CENTER" GridPane.rowIndex="2">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <ListView fx:id="log_3" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="400.0" GridPane.rowIndex="3" />
-      <Label fx:id="log_4_label" maxHeight="17.0" maxWidth="1.7976931348623157E308" minHeight="17.0" minWidth="300.0" prefHeight="17.0" prefWidth="400.0" text="" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <ListView fx:id="log_3" GridPane.rowIndex="3" />
+      <Label fx:id="log_4_label" text="" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <font>
             <Font size="13.0" />
          </font>
       </Label>
-      <ListView fx:id="log_4" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="400.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <ListView fx:id="log_4" GridPane.columnIndex="1" GridPane.rowIndex="3" />
    </children>
 </GridPane>

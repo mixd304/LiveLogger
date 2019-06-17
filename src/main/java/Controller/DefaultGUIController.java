@@ -12,17 +12,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-import org.controlsfx.control.CheckModel;
-import org.controlsfx.control.CheckTreeView;
+import javafx.scene.layout.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,11 +24,15 @@ import java.util.UUID;
 import static javafx.geometry.Pos.BOTTOM_LEFT;
 import static javafx.geometry.Pos.BOTTOM_RIGHT;
 
+/**
+ * Controller-Klasse für die FXML-Seite "defaultPage"
+ *
+ */
 public class DefaultGUIController {
     public static ModelContainer modelContainer = new ModelContainer();
     public static SessionContainer sessionContainer = new SessionContainer();
 
-    @FXML private SplitPane SplitPane;
+    @FXML private AnchorPane secondPane;
     @FXML private VBox vboxTitledPanes;
 
     @FXML
@@ -79,10 +74,8 @@ public class DefaultGUIController {
                 titledPane.setUserData(ordner);
                 titledPane.setId(ordner.getUuid().toString());
                 titledPane.setText(ordner.getBezeichnung());
-                titledPane.setPrefWidth(200.0);
                 addContextMenuToTitledPane(titledPane);
                 VBox vBox = new VBox();
-                vBox.setPrefWidth(200.0);
 
                 ArrayList<Verbindung> verbindungen = ordner.getList();
                 for (Verbindung verbindung: verbindungen) {
@@ -96,10 +89,15 @@ public class DefaultGUIController {
                 vboxTitledPanes.getChildren().add(titledPane);
             }
 
+            secondPane.getChildren().clear();
             if(uuids.size() == 0) {
-                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+                secondPane.getChildren().add(FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+                ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
             } else {
-                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                secondPane.getChildren().add(FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
                 sessionContainer.rebuildLogs();
             }
         } catch (IOException e) {
@@ -136,7 +134,6 @@ public class DefaultGUIController {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Ordner - Umbenennen geklickt");
-                //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
                 while(true) {
                     String[] ordnerData = buildPopup_newOrdner(tP.getText());
                     if(ordnerData == null) {
@@ -195,13 +192,13 @@ public class DefaultGUIController {
      * @param verbindung Die Verbindung, welche verwaltet wird, wenn die CheckBox aufgerufen wird
      * @see #addContextMenuToCheckBox(CheckBox)
      * @see #getCheckedBox(ActionEvent)
+     * @return liefert die erstelle CheckBox zurück
      */
     private CheckBox createCheckbox(Verbindung verbindung) {
         CheckBox checkBox = new CheckBox();
         checkBox.setAlignment(BOTTOM_LEFT);
         checkBox.setMnemonicParsing(false);
         checkBox.setPrefHeight(18.0);
-        checkBox.setPrefWidth(200.0);
         checkBox.setText(verbindung.getBezeichnung());
         checkBox.setId(verbindung.getUuid().toString());
         checkBox.setOnAction(new EventHandler<ActionEvent>() {
@@ -319,7 +316,9 @@ public class DefaultGUIController {
 
             newLoadedPane.getChildren().removeAll();
             newLoadedPane.getChildren().addAll(felder);
-            SplitPane.getItems().set(1, newLoadedPane);
+            secondPane.getChildren().set(0, newLoadedPane);
+            ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+            ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -356,6 +355,7 @@ public class DefaultGUIController {
      * @param old_name Der standardmäßig eingetragene Name im Feld "Bezeichnung"
      * @return die eingetragenen Daten
      * @see #buildPopup_newOrdner(String)
+     * @return liefert einen String-Array mit den Eingabedaten zurück
      */
     private String[] buildPopup_newOrdner(String old_name) {
         Dialog<String[]> dialog = new Dialog<>();
@@ -403,7 +403,7 @@ public class DefaultGUIController {
     public void menue_newButtonClicked_Verbindung(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
-        SplitPane.getItems().set(1, newLoadedPane);
+        secondPane.getChildren().set(0, newLoadedPane);
     }
 
     /**
@@ -425,9 +425,13 @@ public class DefaultGUIController {
             int anz = sessionContainer.getCheckedVerbindungenUUIDs().size();
 
             if(anz == 1 && !checked.isSelected()) {
-                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+                secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+                ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
             } else if(anz == 0 && checked.isSelected()) {
-                SplitPane.getItems().set(1, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
             }
 
             if(checked.isSelected()) {
@@ -443,6 +447,7 @@ public class DefaultGUIController {
     /**
      * Methode um herauszufinden welche CheckBox bei einem ActionEvent angeklickt wird
      * @param actionEvent ActionEvent, welches analysiert werden soll
+     * @return CheckBox, welche angeklickt wurde
      */
     private CheckBox getCheckedBox(ActionEvent actionEvent) {
         List<Node> titledPanes = vboxTitledPanes.getChildren();

@@ -1,6 +1,5 @@
 package Model.Container;
 
-import Controller.DefaultGUIController;
 import ProgrammStart.Main;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
@@ -90,34 +89,40 @@ public class LogReader {
                         BufferedReader bufferedReader = new BufferedReader(inputReader);
                         String line = null;
 
-                        while (((line = bufferedReader.readLine()) != null) && !thread.isInterrupted()) {
-                            writeLine(line);
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        if(bufferedReader.readLine() == null){
+                            printError(listView, "Logpfad ungültig");
+                        } else {
+                            while (((line = bufferedReader.readLine()) != null) && !thread.isInterrupted()) {
+                                writeLine(line);
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                         bufferedReader.close();
                         inputReader.close();
                     } catch (Exception e) {
-                        printError(listView);
+                        System.out.println("Error!");
+                        printError(listView, "unbekannter Fehler");
                     }
                     channel.disconnect();
                     session.disconnect();
                 } catch (Exception e) {
-                    printError(listView);
+                    printError(listView, "unbekannter Fehler");
                 }
             }
         });
     }
 
-    private void printError(ListView<String> listView) {
+    private void printError(ListView<String> listView, String fehler) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                listView.getItems().add("Es konnte keine Verbindung hergestellt werden!\n" +
-                        "Bitte überprüfen Sie die Verbindungsdaten!");
+                listView.getItems().add("Es konnte keine Verbindung zum Server hergestellt werden!" +
+                        "\nFehlerhinweis: " + fehler +
+                        "\nBitte überprüfen Sie die Verbindungsdaten!");
             }
         });
         stop();

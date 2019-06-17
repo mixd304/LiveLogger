@@ -9,7 +9,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
-
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -122,7 +121,7 @@ public class SessionContainer {
             logSession.setLabel(labelList.get(3));
             logSession.setListView(listviewList.get(3));
         }
-        logSession.getLabel().setText(verbindung.getBezeichnung());
+        logSession.getLabel().setText("  " + verbindung.getBezeichnung());
         logSession.getListView().getItems().add("Hier steht nachher die Logausgabe der Verbindung");
 
         LogReader logReader = new LogReader(logSession.getListView());
@@ -215,7 +214,7 @@ public class SessionContainer {
 
     // Methode welche nach dem Programmneustart aufgerufen wird
     public void rebuildLogs() {
-        System.out.println("[INFO] Inhalte werden neu geladen" + this.ausgaben.size());
+        System.out.println("[INFO] Inhalte werden neu geladen. Anzahl = " + this.ausgaben.size());
         buildListViews();
         for(int i = 0; i < logSessionList.size(); i++) {
             logSessionList.get(i).setListView(listviewList.get(i));
