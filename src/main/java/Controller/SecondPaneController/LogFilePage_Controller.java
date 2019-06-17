@@ -32,8 +32,8 @@ public class LogFilePage_Controller {
         listviewList.add(log_2);
         listviewList.add(log_3);
         listviewList.add(log_4);
-        DefaultGUIController.getSessionContainer().setLogFilePage(logFilePage);
-        DefaultGUIController.getSessionContainer().setLabelList(labelList);
-        DefaultGUIController.getSessionContainer().setListviewList(listviewList);
+        DefaultGUIController.sessionContainer.setLogFilePage(logFilePage);
+        DefaultGUIController.sessionContainer.setLabelList(labelList);
+        DefaultGUIController.sessionContainer.setListviewList(listviewList);
     }
 }

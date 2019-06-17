@@ -109,6 +109,16 @@ public class ModelContainer {
         return false;
     }
 
+    public boolean editOrdner(Ordner old_ordner, Ordner new_ordner) {
+        for(Ordner ordner: this.ordnerList) {
+            if(ordner.equals(old_ordner)) {
+                ordnerList.set(ordnerList.indexOf(old_ordner), new_ordner);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Ordner getOrdnerByVerbindung(Verbindung v) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung:ordner.getList()) {
@@ -162,14 +172,6 @@ public class ModelContainer {
         return false;
     }
 
-    public String getSpeicherort() {
-        return speicherort;
-    }
-
-    public void setSpeicherort(String speicherort) {
-        this.speicherort = speicherort;
-    }
-
     public ArrayList<Ordner> getOrdnerList() {
         return ordnerList;
     }
@@ -188,4 +190,5 @@ public class ModelContainer {
             }
         }
     }
+
 }

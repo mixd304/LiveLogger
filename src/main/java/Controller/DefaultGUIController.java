@@ -34,13 +34,11 @@ import static javafx.geometry.Pos.BOTTOM_LEFT;
 import static javafx.geometry.Pos.BOTTOM_RIGHT;
 
 public class DefaultGUIController {
-    static ModelContainer modelContainer = new ModelContainer();
-    static SessionContainer sessionContainer = new SessionContainer();
+    public static ModelContainer modelContainer = new ModelContainer();
+    public static SessionContainer sessionContainer = new SessionContainer();
 
     @FXML private SplitPane SplitPane;
     @FXML private VBox vboxTitledPanes;
-
-    private CheckTreeView<Object> tree;
 
     @FXML
     private void initialize() {
@@ -48,6 +46,12 @@ public class DefaultGUIController {
         buildMenue();
     }
 
+    /**
+     * Methode um das Menü neu zu aufzubauen
+     * Wird aufgerufen, wenn etwas im Menü verändert wurde,
+     * z.B. - ein Ordner hinzugefügt/ umbenannt/ gelöscht
+     *      - eine Verbindung hinzugefügt/ umbenannt/ gelöscht
+     */
     public static void rebuildGUI() {
         try {
             sessionContainer.safeLogs();
@@ -58,7 +62,9 @@ public class DefaultGUIController {
     }
 
     /**
-     * Methode um das Menü mit TitledPanes (als Ordner) und VBoxen mit CheckBoxen als Verbindungen generiert
+     * Methode, welche das Menü mit TitledPanes (als Ordner) und VBoxen mit CheckBoxen als Verbindungen generiert
+     * @see #addContextMenuToTitledPane(TitledPane)
+     * @see #createCheckbox(Verbindung)
      */
     @FXML
     private void buildMenue() {
@@ -105,6 +111,7 @@ public class DefaultGUIController {
      * Fügt ein Kontext- (Rechtsklick-) Menü zu einem TitledPane (Ordner) hinzu und verwaltet die Menü Items
      * sowie was passiert, wenn diese angeklickt werden
      * @param tP das Pane, zu welchem das Kontextmenü hinzugefügt werden soll
+     * @see #buildPopup_newOrdner(String)
      */
     private void addContextMenuToTitledPane(TitledPane tP) {
         ContextMenu contextMenu = new ContextMenu();
@@ -129,8 +136,27 @@ public class DefaultGUIController {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Ordner - Umbenennen geklickt");
-                Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
-                // TODO: Ordner umbenennen POPUP
+                //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
+                while(true) {
+                    String[] ordnerData = buildPopup_newOrdner(tP.getText());
+                    if(ordnerData == null) {
+                        break;
+                    } else if(ordnerData[0].equals("")) {
+                        Dialogs.confirmDialog("Bitte geben Sie eine Bezeichnung für den Ordner ein!");
+                    } else {
+                        Ordner old_ordner = modelContainer.getOrdnerByUUID(UUID.fromString(tP.getId()));
+
+                        Ordner new_ordner = new Ordner();
+                        new_ordner.setBezeichnung(ordnerData[0]);
+                        new_ordner.setUuid(old_ordner.getUuid());
+                        new_ordner.setList(old_ordner.getList());
+                        modelContainer.editOrdner(old_ordner, new_ordner);
+                        modelContainer.safeOrdner();
+                        rebuildGUI();
+                        break;
+                    }
+
+                }
             }
         });
 
@@ -150,16 +176,14 @@ public class DefaultGUIController {
                         }
                     }
                     modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
-                    sessionContainer.safeLogs();
-                    buildMenue();
+                    rebuildGUI();
                 }
             }
         });
 
         // TODO: Kontextmenü erweitern - TitledPanes (Ordner)
-        // z.B. Umbenennen, Löschen
 
-
+        // Alle MenuItems zum ContextMenu hinzufügen
         contextMenu.getItems().add(menuItem_open_close);
         contextMenu.getItems().add(menuItem_rename);
         contextMenu.getItems().add(menuItem_delete);
@@ -169,6 +193,8 @@ public class DefaultGUIController {
     /**
      * Legt eine neue CheckBox an
      * @param verbindung Die Verbindung, welche verwaltet wird, wenn die CheckBox aufgerufen wird
+     * @see #addContextMenuToCheckBox(CheckBox)
+     * @see #getCheckedBox(ActionEvent)
      */
     private CheckBox createCheckbox(Verbindung verbindung) {
         CheckBox checkBox = new CheckBox();
@@ -181,7 +207,7 @@ public class DefaultGUIController {
         checkBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                refreshLogs(getCheckedBox(actionEvent));
+                checkBoxClicked(getCheckedBox(actionEvent));
             }
         });
         addContextMenuToCheckBox(checkBox);
@@ -192,6 +218,8 @@ public class DefaultGUIController {
      * Fügt ein Kontext- (Rechtsklick-) Menü zu einer Checkbox hinzu und verwaltet die Menü Items
      * sowie was passiert, wenn diese angeklickt werden
      * @param cB die Checkbox, welcher das Kontextmenü hinzugefügt werden soll
+     * @see #checkBoxClicked(CheckBox)
+     * @see #editVerbindung(UUID)
      */
     private void addContextMenuToCheckBox(CheckBox cB) {
         ContextMenu contextMenu = new ContextMenu();
@@ -207,7 +235,7 @@ public class DefaultGUIController {
                 } else {
                     cB.setSelected(true);
                 }
-                refreshLogs(cB);
+                checkBoxClicked(cB);
             }
         });
 
@@ -231,7 +259,7 @@ public class DefaultGUIController {
                     if(cB.isSelected()) {
                         cB.setSelected(false);
                     }
-                    refreshLogs(cB);
+                    checkBoxClicked(cB);
                     modelContainer.deleteVerbindungByUUID(UUID.fromString(cB.getId()));
                     sessionContainer.safeLogs();
                     buildMenue();
@@ -297,10 +325,15 @@ public class DefaultGUIController {
         }
     }
 
-    public void menue_newButtonOrdner_Clicked(ActionEvent actionEvent) {
+    /**
+     * wird aufgerufen, wenn im Menü-Reiter auf "Neu -> Ordner" geklickt wird
+     * zeigt die Daten einer Verbindung und ermöglicht es diese zu verändern
+     * @see #buildPopup_newOrdner(String)
+     */
+    public void menue_newButtonClicked_Ordner(ActionEvent actionEvent) {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         while(true) {
-            String[] ordnerData = buildMenue_newButtonOrdner_Clicked_Window();
+            String[] ordnerData = buildPopup_newOrdner("");
             if(ordnerData == null) {
                 break;
             } else if(ordnerData[0].equals("")) {
@@ -318,7 +351,13 @@ public class DefaultGUIController {
         }
     }
 
-    private String[] buildMenue_newButtonOrdner_Clicked_Window() {
+    /**
+     * baut ein Popup zur Erstellung/ Umbenennung eines Ordners
+     * @param old_name Der standardmäßig eingetragene Name im Feld "Bezeichnung"
+     * @return die eingetragenen Daten
+     * @see #buildPopup_newOrdner(String)
+     */
+    private String[] buildPopup_newOrdner(String old_name) {
         Dialog<String[]> dialog = new Dialog<>();
         ButtonType submitButton = new ButtonType("Hinzufügen" ,ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(submitButton, ButtonType.CANCEL);
@@ -330,6 +369,7 @@ public class DefaultGUIController {
 
         TextField bezeichnung = new TextField();
         bezeichnung.setPromptText("Bezeichnung");
+        bezeichnung.setText(old_name);
 
         grid.add(new Label("Bezeichnung: "), 0, 0);
         grid.add(bezeichnung,1,0);
@@ -356,21 +396,22 @@ public class DefaultGUIController {
     }
 
     /**
-     * wird aufgerufen, wenn im Menü-Reiter auf "Neu" geklickt wird
+     * wird aufgerufen, wenn im Menü-Reiter auf "Neu -> Verbindung" geklickt wird
+     * ruft ein neues FXML Fenster auf
+     * @see Controller.SecondPaneController.NewVerbindungPage_Controller
      */
-    public void menue_newButtonVerbindung_Clicked(ActionEvent actionEvent) throws IOException {
+    public void menue_newButtonClicked_Verbindung(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
         SplitPane.getItems().set(1, newLoadedPane);
     }
 
     /**
-     * wird aufgerufen, wenn im Menü-Reiter auf "Neu" geklickt wird
+     * wird aufgerufen, wenn im Menü-Reiter auf "Löschen" geklickt wird
      * TODO: Methode "menue_deleteButtonClicked"
      */
     public void menue_deleteButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] Delete Button Clicked!");
-        //buildDeleteWindow(((Node) actionEvent.getSource()).getScene().getWindow());
         Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
     }
 
@@ -378,7 +419,7 @@ public class DefaultGUIController {
      * wird aufgerufen, wenn eine CheckBox angeklickt wird
      * @param checked angeklickte CheckBox
      */
-    public void refreshLogs(CheckBox checked) {
+    public void checkBoxClicked(CheckBox checked) {
         System.out.println("[ACTION] CheckBox geklickt - Source = " + checked);
         try {
             int anz = sessionContainer.getCheckedVerbindungenUUIDs().size();
@@ -416,96 +457,6 @@ public class DefaultGUIController {
             }
         }
         return null;
-    }
-
-    public static SessionContainer getSessionContainer() {
-        return sessionContainer;
-    }
-    public static ModelContainer getModelContainer() {
-        return modelContainer;
-    }
-
-    private void buildDeleteWindow(Window window) {
-        Stage deleteStage = new Stage();
-        ArrayList<Ordner> ordnerArrayList = modelContainer.getOrdnerList();
-
-        CheckBoxTreeItem<Object> rootItem = new CheckBoxTreeItem<Object>(new String("Alles auswählen"));
-
-        for(Ordner ordner: ordnerArrayList) {
-            CheckBoxTreeItem<Object> checkBoxTreeItem_Ordner = new CheckBoxTreeItem<Object>(ordner);
-
-            ArrayList<Verbindung> verbindungen = ordner.getList();
-            for (Verbindung verbindung : verbindungen) {
-                CheckBoxTreeItem<Object> checkBoxTreeItem_Verbindung = new CheckBoxTreeItem<Object>(verbindung);
-                checkBoxTreeItem_Ordner.getChildren().add(checkBoxTreeItem_Verbindung);
-            }
-            rootItem.getChildren().add(checkBoxTreeItem_Ordner);
-        }
-
-        rootItem.setExpanded(true);
-        this.tree = new CheckTreeView<Object>(rootItem);
-        tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        System.out.println(tree.toString());
-
-        Button submit = new Button();
-        submit.setMnemonicParsing(false);
-        submit.setText("Bestätigen");
-        submit.setAlignment(BOTTOM_LEFT);
-        submit.setPrefSize(150,20);
-        submit.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                //deleteWindowSubmitButtonClicked();
-                System.out.println("[ACTION] Submit Button clicked");
-
-                System.out.println(tree.toString());
-                for (Object o: tree.getCheckModel().getCheckedItems()) {
-                    System.out.println(o.toString());
-                }
-            }
-        });
-
-        Button cancel = new Button();
-        cancel.setMnemonicParsing(false);
-        cancel.setText("Abbrechen");
-        cancel.setAlignment(BOTTOM_RIGHT);
-        cancel.setPrefSize(150,20);
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Cancel Button clicked");
-                deleteStage.close();
-            }
-        });
-
-        GridPane buttons = new GridPane();
-        buttons.setPrefWidth(400);
-        buttons.setHgap(100);
-        buttons.setGridLinesVisible(false);
-        buttons.add(submit, 0, 0);
-        buttons.add(cancel, 1, 0);
-
-        StackPane root = new StackPane();
-        root.getChildren().add(tree);
-        root.getChildren().add(submit);
-        //root.getChildren().add(buttons);
-        //deleteStage.setScene(new Scene(root, 400, 100));
-        root.setPrefWidth(400);
-        deleteStage.setScene(new Scene(root));
-        deleteStage.centerOnScreen();
-        deleteStage.initOwner(window);
-        deleteStage.setTitle("Welche Daten sollen gelöscht werden?");
-        deleteStage.initModality(Modality.APPLICATION_MODAL);
-        deleteStage.show();
-    }
-    private void deleteWindowSubmitButtonClicked() {
-        System.out.println("[ACTION] Submit Button clicked");
-
-        CheckModel checkModel = tree.getCheckModel();
-        List<Object> checked = checkModel.getCheckedItems();
-        for (Object o: checked) {
-            o.toString();
-        }
     }
 }
 

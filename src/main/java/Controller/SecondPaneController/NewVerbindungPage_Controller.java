@@ -32,13 +32,13 @@ public class NewVerbindungPage_Controller {
     @FXML
     private void initialize() {
         System.out.println("[INIT] newVerbindungPage geladen");
-        DefaultGUIController.getModelContainer().loadOrdner();
+        DefaultGUIController.modelContainer.loadOrdner();
         fillChoiceBoxOrdner();
         fillChoiceBoxBetriebssystem();
     }
 
     private void fillChoiceBoxOrdner() {
-        for (Ordner o: DefaultGUIController.getModelContainer().getOrdnerList()) {
+        for (Ordner o: DefaultGUIController.modelContainer.getOrdnerList()) {
             ordner.getItems().add(o.getBezeichnung());
         }
     }
@@ -69,14 +69,14 @@ public class NewVerbindungPage_Controller {
                 } else {
                     new_ordner.setBezeichnung(ordner.getValue());
                     new_ordner.setUuid(UUID.randomUUID());
-                    DefaultGUIController.getModelContainer().addOrdner(new_ordner);
+                    DefaultGUIController.modelContainer.addOrdner(new_ordner);
                 }
             } else {
-                Ordner ordnerByIndex = DefaultGUIController.getModelContainer().getOrdnerList().get(selected_index);
+                Ordner ordnerByIndex = DefaultGUIController.modelContainer.getOrdnerList().get(selected_index);
                 if(!ordnerByIndex.getBezeichnung().equals(ordner.getValue())) {
                     new_ordner.setBezeichnung(ordner.getValue());
                     new_ordner.setUuid(UUID.randomUUID());
-                    DefaultGUIController.getModelContainer().addOrdner(new_ordner);
+                    DefaultGUIController.modelContainer.addOrdner(new_ordner);
                 } else {
                     new_ordner = ordnerByIndex;
                 }
@@ -105,8 +105,8 @@ public class NewVerbindungPage_Controller {
 
             Verbindung new_verbindung = getInserts();
 
-            System.out.println(DefaultGUIController.getModelContainer().addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());
-            DefaultGUIController.getModelContainer().safeOrdner();
+            System.out.println(DefaultGUIController.modelContainer.addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());
+            DefaultGUIController.modelContainer.safeOrdner();
 
             DefaultGUIController.rebuildGUI();
         } catch (Exception e) {
@@ -137,30 +137,30 @@ public class NewVerbindungPage_Controller {
     private void editVerbindung_submitButtonClicked(UUID uuid) {
         System.out.println("[AKTION] Edit Verbindung - Submit Button Clicked");
         try {
-            Verbindung old_verbindung = DefaultGUIController.getModelContainer().getVerbindungByUUID(uuid);
+            Verbindung old_verbindung = DefaultGUIController.modelContainer.getVerbindungByUUID(uuid);
             Verbindung new_verbindung = getInserts();
             new_verbindung.setUuid(uuid);
 
-            Ordner old_ordner = DefaultGUIController.getModelContainer().getOrdnerByVerbindung(old_verbindung);
+            Ordner old_ordner = DefaultGUIController.modelContainer.getOrdnerByVerbindung(old_verbindung);
             int selected_index = ordner.getSelectionModel().getSelectedIndex();
             Ordner new_ordner = new Ordner();
-            Ordner selected_ordner = DefaultGUIController.getModelContainer().getOrdnerList().get(selected_index);
+            Ordner selected_ordner = DefaultGUIController.modelContainer.getOrdnerList().get(selected_index);
             if(!selected_ordner.getBezeichnung().equals(ordner.getValue())) {
                 new_ordner.setBezeichnung(ordner.getValue());
                 new_ordner.setUuid(UUID.randomUUID());
-                DefaultGUIController.getModelContainer().addOrdner(new_ordner);
+                DefaultGUIController.modelContainer.addOrdner(new_ordner);
 
                 old_ordner.deleteVerbindungByUUID(old_verbindung.getUuid());
                 new_ordner.addVerbindung(new_verbindung);
             } else {
                 if(selected_ordner.equals(old_ordner)) {
-                    DefaultGUIController.getModelContainer().editVerbindung(old_verbindung, new_verbindung);
+                    DefaultGUIController.modelContainer.editVerbindung(old_verbindung, new_verbindung);
                 } else {
                     old_ordner.deleteVerbindungByUUID(old_verbindung.getUuid());
                     selected_ordner.addVerbindung(new_verbindung);
                 }
             }
-            DefaultGUIController.getModelContainer().safeOrdner();
+            DefaultGUIController.modelContainer.safeOrdner();
             DefaultGUIController.rebuildGUI();
         } catch (Exception e) {
             e.printStackTrace();
@@ -171,10 +171,10 @@ public class NewVerbindungPage_Controller {
     public void cancelButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[AKTION] Cancel Button Clicked");
 
-        DefaultGUIController.getSessionContainer().safeLogs();
+        DefaultGUIController.sessionContainer.safeLogs();
         List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
-        parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.getSessionContainer().getPageURL())));
-        DefaultGUIController.getSessionContainer().rebuildLogs();
+        parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
+        DefaultGUIController.sessionContainer.rebuildLogs();
     }
 
     public void editVerbindung(Verbindung verbindung) {

@@ -15,8 +15,8 @@
             <items>
                   <Menu mnemonicParsing="false" text="Neu">
                     <items>
-                      <MenuItem fx:id="newButtonOrdner" mnemonicParsing="false" onAction="#menue_newButtonOrdner_Clicked" text="Ordner" />
-                    <MenuItem fx:id="newButtonVerbindung" mnemonicParsing="false" onAction="#menue_newButtonVerbindung_Clicked" text="Verbindung" />
+                      <MenuItem fx:id="newButtonOrdner" mnemonicParsing="false" onAction="#menue_newButtonClicked_Ordner" text="Ordner" />
+                    <MenuItem fx:id="newButtonVerbindung" mnemonicParsing="false" onAction="#menue_newButtonClicked_Verbindung" text="Verbindung" />
                     </items>
                   </Menu>
                   <MenuItem fx:id="deleteButton" mnemonicParsing="false" onAction="#menue_deleteButtonClicked" text="Löschen" />
