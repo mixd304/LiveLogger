@@ -29,7 +29,7 @@ public class SessionContainer {
 
     public void addVerbindung(CheckBox checked) {
         if (logSessionList.size() < 4) {
-            Verbindung verbindung = DefaultGUIController.getModelContainer().getVerbindungByUUID(UUID.fromString(checked.getId()));
+            Verbindung verbindung = DefaultGUIController.modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()));
             this.createNewLogSession(verbindung);
         } else {
             checked.setSelected(false);
