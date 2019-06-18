@@ -1,5 +1,6 @@
 package Model.Container;
 
+import Model.Data.Verbindung;
 import ProgrammStart.Main;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
@@ -11,15 +12,32 @@ import java.util.Properties;
 public class LogReader {
     private ListView<String> listView;
     private boolean running;
-    Thread thread;
+    private Thread thread;
     private String output;
 
+    /**
+     * Konstruktor
+     */
+    public LogReader() {
 
+    }
+
+    /**
+     * Konstruktor
+     * @param listView Verweis auf das zu beschreibende ListView (Textfeld) der Oberfläche
+     */
     public LogReader(ListView<String> listView) {
         this.listView = listView;
     }
 
-    public void readWindows(String pfad, String host, String user, String password) {
+    /**
+     * Öffnet einen neuen Thread, welcher parallel zum JavaFX-Thread läuft
+     * Stellt eine Verbindung zu einem Linux-Server her
+     * Liest sein Logfile zeilenweise in Echtzeit aus und liefert diese Zeilen an die Oberfläche
+     * @param verbindung herzustellende Verbindung
+     * @see #writeLine(String)
+     */
+    public void readWindows(Verbindung verbindung) {
         Main.executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -57,21 +75,28 @@ public class LogReader {
         });
     }
 
-    public void readLinux(String pfad, String host, String user, String password) {
+    /**
+     * Öffnet einen neuen Thread, welcher parallel zum JavaFX-Thread läuft
+     * Stellt eine Verbindung zu einem Linux-Server her
+     * Liest sein Logfile zeilenweise in Echtzeit aus und liefert diese Zeilen an die Oberfläche
+     * @param verbindung herzustellende Verbindung
+     * @see #writeLine(String)
+     */
+    public void readLinux(Verbindung verbindung) {
         Main.executor.execute(new Runnable() {
             @Override
             public void run() {
                 thread = Thread.currentThread();
                 running = true;
                 try {
-                    String command = "tail -f -n 50 " + pfad;
+                    String command = "tail -f -n 200 " + verbindung.getLogpath();
 
                     JSch jsch = new JSch();
-                    Session session = jsch.getSession(user, host, 22);
+                    Session session = jsch.getSession(verbindung.getBenutzername(), verbindung.getHost(), verbindung.getPort());
                     Properties config = new Properties();
                     config.put("StrictHostKeyChecking", "no");
                     session.setConfig(config);
-                    session.setPassword(password);
+                    session.setPassword(verbindung.getPasswort());
                     session.connect();
 
                     Channel channel = session.openChannel("exec");
@@ -82,7 +107,7 @@ public class LogReader {
                     InputStream input = channel.getInputStream();
                     channel.connect();
 
-                    System.out.println("Channel Connected to machine " + host + " server with command: " + command);
+                    System.out.println("Channel Connected to machine " + verbindung.getHost() + " server with command: " + command);
 
                     try {
                         InputStreamReader inputReader = new InputStreamReader(input);
@@ -90,12 +115,12 @@ public class LogReader {
                         String line = null;
 
                         if(bufferedReader.readLine() == null){
-                            printError(listView, "Logpfad ungültig");
+                            printError("Logpfad ungültig");
                         } else {
                             while (((line = bufferedReader.readLine()) != null) && !thread.isInterrupted()) {
                                 writeLine(line);
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(10);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -105,18 +130,22 @@ public class LogReader {
                         inputReader.close();
                     } catch (Exception e) {
                         System.out.println("Error!");
-                        printError(listView, "unbekannter Fehler");
+                        printError("unbekannter Fehler");
                     }
                     channel.disconnect();
                     session.disconnect();
                 } catch (Exception e) {
-                    printError(listView, "unbekannter Fehler");
+                    printError("unbekannter Fehler");
                 }
             }
         });
     }
 
-    private void printError(ListView<String> listView, String fehler) {
+    /**
+     * Schreibt eine Fehlerzeile in die Oberfläche, wenn keine Verbindung hergestellt werden konnte
+     * @param fehler Fehlerhinweise, z.B. falscher Port oder falsches Passwort
+     */
+    private void printError(String fehler) {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -128,10 +157,10 @@ public class LogReader {
         stop();
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
+    /**
+     * Schreibt eine Zeile in das entsprechende Listview der Oberfläche
+     * @param line zu schreibende Zeile
+     */
     private void writeLine(String line) {
         Platform.runLater(new Runnable() {
             @Override
@@ -141,14 +170,13 @@ public class LogReader {
         });
     }
 
+    /**
+     * Stoppt den Thread und somit die Verbindung zum Server und das Auslesen des Logfiles
+     */
     public void stop() {
         running = false;
         thread.interrupt();
         thread.stop();
-    }
-
-    public ListView<String> getListView() {
-        return listView;
     }
     public void setListView(ListView<String> listView) {
         this.listView = listView;

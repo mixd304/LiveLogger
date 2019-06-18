@@ -9,8 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-
-<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.DefaultGUIController">
+<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="300.0" minWidth="300.0" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.DefaultGUIController">
    <children>
       <MenuBar maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
@@ -27,22 +26,18 @@
           </Menu>
         </menus>
       </MenuBar>
-      <GridPane fx:id="gridPane" gridLinesVisible="true" prefHeight="802.0" prefWidth="1008.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+      <GridPane fx:id="gridPane" gridLinesVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
         <columnConstraints>
-          <ColumnConstraints fx:id="gridPane_Menue" hgrow="SOMETIMES" maxWidth="200.0" minWidth="100.0" prefWidth="200.0" />
+          <ColumnConstraints fx:id="gridPane_Menue" hgrow="SOMETIMES" maxWidth="200.0" prefWidth="200.0" />
             <ColumnConstraints fx:id="gridPane_logs" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <AnchorPane fx:id="firstPane">
-               <children>
-                  <VBox fx:id="vboxTitledPanes" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox fx:id="vboxTitledPanes">
 
                   </VBox>
-               </children>
-            </AnchorPane>
             <AnchorPane fx:id="secondPane" GridPane.columnIndex="1">
             </AnchorPane>
          </children>

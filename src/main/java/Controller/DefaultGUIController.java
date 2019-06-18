@@ -29,6 +29,8 @@ import static javafx.geometry.Pos.BOTTOM_RIGHT;
  *
  */
 public class DefaultGUIController {
+    //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
+
     public static ModelContainer modelContainer = new ModelContainer();
     public static SessionContainer sessionContainer = new SessionContainer();
 
@@ -217,6 +219,7 @@ public class DefaultGUIController {
      * @param cB die Checkbox, welcher das Kontextmenü hinzugefügt werden soll
      * @see #checkBoxClicked(CheckBox)
      * @see #editVerbindung(UUID)
+     * @see #copyVerbindung(UUID)
      */
     private void addContextMenuToCheckBox(CheckBox cB) {
         ContextMenu contextMenu = new ContextMenu();
@@ -265,13 +268,12 @@ public class DefaultGUIController {
         });
 
         // MenuItem - als Vorlage verwenden Knopf - Beim Drücken wird ein Felder zur Erstellung einer neuen Verbindung erstellt mit den Werten der ausgewählten als Vorlage
-        // TODO: Menü Item "als Vorlage verwenden"
         MenuItem menuItem_copyAsTemplate = new MenuItem("Als Vorlage verwenden");
         menuItem_copyAsTemplate.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 System.out.println("[ACTION] Verbindung - Als Vorlage verwenden geklickt");
-                Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
+                copyVerbindung(UUID.fromString(cB.getId()));
             }
         });
 
@@ -297,10 +299,6 @@ public class DefaultGUIController {
             pane.setId(uuid.toString());
             ObservableList<Node> felder = pane.getChildren();
 
-            verbindung.print();
-            System.out.println(modelContainer.getOrdnerByVerbindung(verbindung));
-            System.out.println(((ComboBox<Ordner>) felder.get(0)).getItems().toString());
-
             ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
             ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
             ((TextField) felder.get(2)).setText(verbindung.getHost());
@@ -317,12 +315,45 @@ public class DefaultGUIController {
             newLoadedPane.getChildren().removeAll();
             newLoadedPane.getChildren().addAll(felder);
             secondPane.getChildren().set(0, newLoadedPane);
-            ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
-            ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+            ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+            ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     * benutzt die Daten einer Verbindung als Vorlage zur Erstellung einer neuen
+     * @param uuid UUID der Verbindung, welche als Vorlage verwendet werden soll
+     */
+    private void copyVerbindung(UUID uuid) {
+        try {
+            Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
+            Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
+            Pane pane = (Pane) newLoadedPane.getChildren().get(0);
+            ObservableList<Node> felder = pane.getChildren();
+
+            ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
+            ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
+            ((TextField) felder.get(2)).setText(verbindung.getHost());
+            ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
+            ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
+            ((TextField) felder.get(5)).setText(verbindung.getKeyfile());
+            ((PasswordField) felder.get(6)).setText(verbindung.getPasswort());
+            ((CheckBox) felder.get(7)).setSelected(verbindung.isSafePasswort());
+            ((TextField) felder.get(8)).setText(verbindung.getLogpath());
+            ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
+
+            newLoadedPane.getChildren().removeAll();
+            newLoadedPane.getChildren().addAll(felder);
+            secondPane.getChildren().set(0, newLoadedPane);
+            ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+            ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * wird aufgerufen, wenn im Menü-Reiter auf "Neu -> Ordner" geklickt wird
@@ -424,24 +455,48 @@ public class DefaultGUIController {
         try {
             int anz = sessionContainer.getCheckedVerbindungenUUIDs().size();
 
-            if(anz == 1 && !checked.isSelected()) {
-                secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
-                ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
-                ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
-            } else if(anz == 0 && checked.isSelected()) {
-                secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
-                ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
-                ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
-            }
+            if(!checkVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()))) && checked.isSelected()) {
+                Dialogs.informationDialog("Bitte vervollständigen Sie die Eingaben der Verbindung!", "Information");
+                checked.setSelected(false);
+            } else {
+                if(anz == 1 && !checked.isSelected()) {
+                    secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
+                    ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                    ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+                } else if(anz == 0 && checked.isSelected()) {
+                    secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
+                    ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+                    ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+                }
 
-            if(checked.isSelected()) {
-                sessionContainer.addVerbindung(checked);
-            } else if(!checked.isSelected()) {
-                sessionContainer.removeVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId())));
+                if(checked.isSelected()) {
+                    sessionContainer.addVerbindung(checked);
+                } else if(!checked.isSelected()) {
+                    sessionContainer.removeVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId())));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * überprüft die Inhalte einer Verbindung auf Vollständigkeit
+     * @param verbindung geprüfte Verbindung
+     * @return false, wenn nicht vollständig
+     * @return true, wenn vollständig
+     */
+    private boolean checkVerbindung(Verbindung verbindung) {
+        if(verbindung.getLogpath().equals("")) {
+            return false;
+        } else if(verbindung.getHost().equals("")) {
+            return false;
+        } else if(verbindung.getBetriebssystem().equals("")) {
+            return false;
+        } else if(verbindung.getBenutzername().equals("")) {
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -8,10 +8,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -29,8 +35,8 @@ public class NewVerbindungPage_Controller {
     @FXML TextField benutzername;
     @FXML PasswordField passwort;
     @FXML CheckBox safePasswort;
-    @FXML TextField keyfile;
     @FXML TextField logpath;
+    @FXML TextField keyfile;
     @FXML ChoiceBox<String> betriebssystem;
 
     @FXML
@@ -124,10 +130,10 @@ public class NewVerbindungPage_Controller {
                 }
             }
             // Prüfung des Betriebssystem
-            if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
+            /*if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
                 Dialogs.confirmDialog("Bitte wählen Sie ein Betriebssystem aus!");
                 return false;
-            }
+            }*/
 
             Verbindung new_verbindung = getInserts();
 
@@ -188,7 +194,7 @@ public class NewVerbindungPage_Controller {
         verbindung.setBezeichnung(bezeichnung.getText());
         verbindung.setHost(host.getText());
         if(port.getText().equals("")) {
-            verbindung.setPort(-1);
+            verbindung.setPort(22);
         } else {
             verbindung.setPort(Integer.parseInt(port.getText()));
         }
@@ -222,5 +228,15 @@ public class NewVerbindungPage_Controller {
             ((AnchorPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
         }
         DefaultGUIController.sessionContainer.rebuildLogs();
+    }
+
+    public void openFileChooser(MouseEvent mouseEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Keyfile auswählen");
+        File file = fileChooser.showOpenDialog(new Stage());
+
+        if(file != null) {
+            keyfile.setText(file.toString());
+        }
     }
 }
