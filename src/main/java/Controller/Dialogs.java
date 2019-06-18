@@ -11,7 +11,6 @@ public class Dialogs {
         alert.setTitle(header);
         alert.setHeaderText(header);
         alert.setContentText(warning);
-
         alert.showAndWait();
     }
 
@@ -20,7 +19,6 @@ public class Dialogs {
         alert.setTitle(header);
         alert.setHeaderText(header);
         alert.setContentText(information);
-
         alert.showAndWait();
     }
 
@@ -33,7 +31,6 @@ public class Dialogs {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Bestätigung");
         alert.setHeaderText(confirmation);
-
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             return true;

@@ -7,14 +7,24 @@ import Model.Data.Verbindung;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
+import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller-Klasse für die FXML-Seite "newVerbindungPage.fxml"
+ *
+ */
 public class NewVerbindungPage_Controller {
     @FXML Pane newVerbindungPage;
     // alle Eingabefelder
@@ -25,38 +35,60 @@ public class NewVerbindungPage_Controller {
     @FXML TextField benutzername;
     @FXML PasswordField passwort;
     @FXML CheckBox safePasswort;
-    @FXML TextField keyfile;
     @FXML TextField logpath;
+    @FXML TextField keyfile;
     @FXML ChoiceBox<String> betriebssystem;
 
     @FXML
     private void initialize() {
         System.out.println("[INIT] newVerbindungPage geladen");
         DefaultGUIController.modelContainer.loadOrdner();
-        fillChoiceBoxOrdner();
+        fillComboBoxOrdner();
         fillChoiceBoxBetriebssystem();
     }
 
-    private void fillChoiceBoxOrdner() {
+    /**
+     * füllt die ComboBox "ordner" mit allen vorhandenen Ordnern
+     *
+     */
+    private void fillComboBoxOrdner() {
         for (Ordner o: DefaultGUIController.modelContainer.getOrdnerList()) {
             ordner.getItems().add(o.getBezeichnung());
         }
     }
 
+    /**
+     * füllt die ChoiceBox "betriebssystem" mit allen unterstützten Betriebssysteme
+     *
+     */
     private void fillChoiceBoxBetriebssystem() {
         betriebssystem.getItems().add("Linux");
         betriebssystem.getItems().add("Windows");
     }
 
+    /**
+     * wird aufgerufen, wenn der "Bestätigen"-Knopf auf der newVerbindungPage gedrückt wurde
+     * prüft die ID der ActionEvent-Source darauf
+     *  ob es sich um eine neue Verbindung
+     * @see #submitButtonClicked_newVerbindung()
+     *  oder eine bereits vorhandene Verbindung handelt
+     * @see #submitButtonClicked_editVerbindung(UUID)
+     */
     public void submitButtonClicked(ActionEvent actionEvent) {
         if(((Button) actionEvent.getSource()).getId().equals("submitButton")) {
-            newVerbindung_submitButtonClicked();
+            submitButtonClicked_newVerbindung();
         } else if (((Button) actionEvent.getSource()).getId().equals("editVerbindungButton")) {
-            editVerbindung_submitButtonClicked(UUID.fromString(((Button) actionEvent.getSource()).getParent().getChildrenUnmodifiable().get(0).getId()));
+            submitButtonClicked_editVerbindung(UUID.fromString(((Button) actionEvent.getSource()).getParent().getChildrenUnmodifiable().get(0).getId()));
         }
     }
 
-    private boolean newVerbindung_submitButtonClicked() {
+    /**
+     * Prüft die Input-Felder auf gültige Werte und legt eine
+     * neue Verbindung an
+     * @return false, wenn keine/ ungültige Werte eingetragen wurde
+     * @return true, wenn alle eingetragenen Werte gültig sind
+     */
+    private boolean submitButtonClicked_newVerbindung() {
         System.out.println("[AKTION] Neue Verbindung - Submit Button Clicked");
         try {
             // Prüfung des Ordners
@@ -98,10 +130,10 @@ public class NewVerbindungPage_Controller {
                 }
             }
             // Prüfung des Betriebssystem
-            if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
+            /*if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
                 Dialogs.confirmDialog("Bitte wählen Sie ein Betriebssystem aus!");
                 return false;
-            }
+            }*/
 
             Verbindung new_verbindung = getInserts();
 
@@ -115,26 +147,11 @@ public class NewVerbindungPage_Controller {
         return true;
     }
 
-    private Verbindung getInserts() {
-        Verbindung verbindung = new Verbindung();
-        verbindung.setBezeichnung(bezeichnung.getText());
-        verbindung.setHost(host.getText());
-        if(port.getText().equals("")) {
-            verbindung.setPort(-1);
-        } else {
-            verbindung.setPort(Integer.parseInt(port.getText()));
-        }
-        verbindung.setBenutzername(benutzername.getText());
-        verbindung.setPasswort(passwort.getText());
-        verbindung.setSafePasswort(safePasswort.isSelected());
-        verbindung.setKeyfile(keyfile.getText());
-        verbindung.setLogpath(logpath.getText());
-        verbindung.setBetriebssystem(betriebssystem.getValue());
-
-        return verbindung;
-    }
-
-    private void editVerbindung_submitButtonClicked(UUID uuid) {
+    /**
+     * Prüft die Input-Felder auf gültige Werte und überschreibt
+     * die bereits vorhandene Verbindung
+     */
+    private void submitButtonClicked_editVerbindung(UUID uuid) {
         System.out.println("[AKTION] Edit Verbindung - Submit Button Clicked");
         try {
             Verbindung old_verbindung = DefaultGUIController.modelContainer.getVerbindungByUUID(uuid);
@@ -168,16 +185,58 @@ public class NewVerbindungPage_Controller {
 
     }
 
+    /**
+     * Holt alle eingetragenen Werte aus den Input-Feldern
+     * @return alle eingetragenen Werte
+     */
+    private Verbindung getInserts() {
+        Verbindung verbindung = new Verbindung();
+        verbindung.setBezeichnung(bezeichnung.getText());
+        verbindung.setHost(host.getText());
+        if(port.getText().equals("")) {
+            verbindung.setPort(22);
+        } else {
+            verbindung.setPort(Integer.parseInt(port.getText()));
+        }
+        verbindung.setBenutzername(benutzername.getText());
+        verbindung.setPasswort(passwort.getText());
+        verbindung.setSafePasswort(safePasswort.isSelected());
+        verbindung.setKeyfile(keyfile.getText());
+        verbindung.setLogpath(logpath.getText());
+        verbindung.setBetriebssystem(betriebssystem.getValue());
+
+        return verbindung;
+    }
+
+    /**
+     * wird aufgerufen, wenn der "Abbrechen"-Knopf auf der newVerbindungPage gedrückt wurde
+     * lädt die alte Seite in den rechten Teil der defaultPage
+     */
     public void cancelButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[AKTION] Cancel Button Clicked");
 
         DefaultGUIController.sessionContainer.safeLogs();
-        List<Node> parentChildren = ((Pane) newVerbindungPage.getParent()).getChildren();
-        parentChildren.set(parentChildren.indexOf(newVerbindungPage), FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
+        AnchorPane parent = (AnchorPane) newVerbindungPage.getParent();
+        int index = parent.getChildren().indexOf(newVerbindungPage);
+        parent.getChildren().set(index, FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
+
+        if(parent.getChildren().get(index).getClass().equals(GridPane.class)) {
+            ((GridPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
+            ((GridPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
+        } else if(parent.getChildren().get(index).getClass().equals(AnchorPane.class)) {
+            ((AnchorPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
+            ((AnchorPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
+        }
         DefaultGUIController.sessionContainer.rebuildLogs();
     }
 
-    public void editVerbindung(Verbindung verbindung) {
+    public void openFileChooser(MouseEvent mouseEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Keyfile auswählen");
+        File file = fileChooser.showOpenDialog(new Stage());
 
+        if(file != null) {
+            keyfile.setText(file.toString());
+        }
     }
 }

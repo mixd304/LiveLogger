@@ -9,10 +9,6 @@ public class ModelControllerTest {
 
 
     public static void main(String args[]) {
-        ModelContainer modelContainer = new ModelContainer();
-        modelContainer.loadOrdner();
-        modelContainer.getOrdnerList().get(1).getList().get(3).print();
-
         generateTestData();
 
         System.out.println("=========================================================================");
@@ -45,7 +41,7 @@ public class ModelControllerTest {
         verbindung1_1.setHost("10.4.245.16");
         verbindung1_1.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
         verbindung1_1.setPasswort("start-1234");
-        verbindung1_1.setPort(0);
+        verbindung1_1.setPort(22);
         verbindung1_1.setBetriebssystem("Linux");
         verbindung1_1.setUuid(UUID.randomUUID());
         ordner1.addVerbindung(verbindung1_1);
@@ -56,7 +52,7 @@ public class ModelControllerTest {
         verbindung1_2.setHost("10.4.245.16");
         verbindung1_2.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
         verbindung1_2.setPasswort("start-1234");
-        verbindung1_2.setPort(0);
+        verbindung1_2.setPort(22);
         verbindung1_2.setBetriebssystem("Linux");
         verbindung1_2.setUuid(UUID.randomUUID());
         ordner1.addVerbindung(verbindung1_2);
@@ -67,7 +63,7 @@ public class ModelControllerTest {
         verbindung1_3.setHost("10.4.245.99");
         verbindung1_3.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
         verbindung1_3.setPasswort("start-1234");
-        verbindung1_3.setPort(0);
+        verbindung1_3.setPort(22);
         verbindung1_3.setBetriebssystem("Linux");
         verbindung1_3.setUuid(UUID.randomUUID());
         ordner1.addVerbindung(verbindung1_3);
@@ -76,9 +72,9 @@ public class ModelControllerTest {
         verbindung1_4.setBezeichnung("Falscher LogPath");
         verbindung1_4.setBenutzername("root");
         verbindung1_4.setHost("10.4.245.16");
-        verbindung1_4.setLogpath("/opt/bob/babo");
+        verbindung1_4.setLogpath("/opt/bob");
         verbindung1_4.setPasswort("start-1234");
-        verbindung1_4.setPort(0);
+        verbindung1_4.setPort(22);
         verbindung1_4.setBetriebssystem("Linux");
         verbindung1_4.setUuid(UUID.randomUUID());
         ordner1.addVerbindung(verbindung1_4);
@@ -89,10 +85,21 @@ public class ModelControllerTest {
         verbindung1_5.setHost("10.4.245.16");
         verbindung1_5.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
         verbindung1_5.setPasswort("start");
-        verbindung1_5.setPort(0);
+        verbindung1_5.setPort(22);
         verbindung1_5.setBetriebssystem("Linux");
         verbindung1_5.setUuid(UUID.randomUUID());
         ordner1.addVerbindung(verbindung1_5);
+
+        Verbindung verbindung1_6 = new Verbindung();
+        verbindung1_6.setBezeichnung("Falscher Port");
+        verbindung1_6.setBenutzername("root");
+        verbindung1_6.setHost("10.4.245.16");
+        verbindung1_6.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
+        verbindung1_6.setPasswort("start-1234");
+        verbindung1_6.setPort(0);
+        verbindung1_6.setBetriebssystem("Linux");
+        verbindung1_6.setUuid(UUID.randomUUID());
+        ordner1.addVerbindung(verbindung1_6);
 
 
 

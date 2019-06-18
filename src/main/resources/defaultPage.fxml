@@ -3,13 +3,15 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="825.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.DefaultGUIController">
+<AnchorPane fx:id="defaultPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="300.0" minWidth="300.0" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.DefaultGUIController">
    <children>
-      <MenuBar prefHeight="25.0" prefWidth="1000.0">
+      <MenuBar maxHeight="25.0" maxWidth="1.7976931348623157E308" minHeight="25.0" prefHeight="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="Daten">
             <items>
@@ -24,18 +26,21 @@
           </Menu>
         </menus>
       </MenuBar>
-      <SplitPane fx:id="SplitPane" dividerPositions="0.2" layoutY="25.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="800.0" prefWidth="1000.0">
-         <items>
-            <AnchorPane fx:id="FirstPane" maxWidth="200.0" minHeight="150.0" minWidth="50.0" prefHeight="800.0" prefWidth="200.0">
-               <children>
-                  <VBox fx:id="vboxTitledPanes">
+      <GridPane fx:id="gridPane" gridLinesVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+        <columnConstraints>
+          <ColumnConstraints fx:id="gridPane_Menue" hgrow="SOMETIMES" maxWidth="200.0" prefWidth="200.0" />
+            <ColumnConstraints fx:id="gridPane_logs" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <VBox fx:id="vboxTitledPanes">
 
                   </VBox>
-               </children>
+            <AnchorPane fx:id="secondPane" GridPane.columnIndex="1">
             </AnchorPane>
-            <AnchorPane fx:id="SecondPane" minHeight="150.0" minWidth="0.0" prefHeight="800.0" prefWidth="800.0">
-            </AnchorPane>
-         </items>
-      </SplitPane>
+         </children>
+      </GridPane>
    </children>
 </AnchorPane>
