@@ -1,6 +1,5 @@
 package ProgrammStart;
 
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +39,14 @@ public class StartProgramm extends Application {
             stage = new Stage();
         }
 
+        stage.setMinWidth(400);
+        stage.setMinHeight(200);
+        /*stage.widthProperty().addListener((obs, oldVal, newVal) -> {
+
+        });
+        stage.heightProperty().addListener((obs, oldVal, newVal) -> {
+
+        });*/
         stage.setTitle("LiveLogger");
         stage.setResizable(true);
         stage.setScene(new Scene(root));

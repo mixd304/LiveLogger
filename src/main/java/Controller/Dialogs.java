@@ -1,7 +1,10 @@
 package Controller;
 
+import Model.Data.ResultBoolean;
+import Model.Data.Verbindung;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 
 import java.util.Optional;
 
@@ -37,5 +40,24 @@ public class Dialogs {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Methode, welche eine Verbindung auf Passwort Speichern abfragt und wenn dort false eingetragen ist
+     * das Passwort erfragt
+     * @return passwort
+     */
+    public static String getPasswortDialog(Verbindung verbindung) {
+        TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setTitle("Passwort eintragen");
+        inputDialog.setHeaderText("Bitte tragen Sie das Passwort für die Verbindung '" + verbindung.getBezeichnung() + "' ein");
+        inputDialog.setContentText("Passwort: ");
+
+        Optional<String> result = inputDialog.showAndWait();
+        if(result.isPresent()) {
+            System.out.println("RESULT = " + result.get());
+            return result.get();
+        }
+        return null;
     }
 }

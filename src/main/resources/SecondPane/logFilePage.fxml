@@ -9,14 +9,14 @@
 
 <GridPane fx:id="logFilePage" gridLinesVisible="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.LogFilePage_Controller">
    <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" percentWidth="100.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" percentWidth="0.0" />
+      <ColumnConstraints percentWidth="100.0" />
+      <ColumnConstraints percentWidth="0.0" />
    </columnConstraints>
    <rowConstraints>
       <RowConstraints maxHeight="17.0" minHeight="17.0" prefHeight="17.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="17.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
-      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
       <Label fx:id="log_1_label" text="" textAlignment="CENTER">

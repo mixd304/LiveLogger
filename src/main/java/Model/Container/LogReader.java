@@ -1,5 +1,6 @@
 package Model.Container;
 
+import Controller.DefaultGUIController;
 import Model.Data.Verbindung;
 import ProgrammStart.Main;
 import com.jcraft.jsch.*;
@@ -14,6 +15,7 @@ public class LogReader {
     private boolean running;
     private Thread thread;
     private String output;
+    private String passwort;
 
     /**
      * Konstruktor
@@ -94,9 +96,17 @@ public class LogReader {
                     JSch jsch = new JSch();
                     Session session = jsch.getSession(verbindung.getBenutzername(), verbindung.getHost(), verbindung.getPort());
                     Properties config = new Properties();
-                    config.put("StrictHostKeyChecking", "no");
+
+                    if(verbindung.getKeyfile() == "" || verbindung.getKeyfile() == null) {
+                        config.put("StrictHostKeyChecking", "no");
+                    } else {
+                        // TODO KEYFILE
+                        config.put("StrictHostKeyChecking", "no");
+
+                        //config.put("StrictHostKeyChecking", new File(verbindung.getKeyfile()));
+                    }
                     session.setConfig(config);
-                    session.setPassword(verbindung.getPasswort());
+                    session.setPassword(passwort);
                     session.connect();
 
                     Channel channel = session.openChannel("exec");
@@ -131,11 +141,13 @@ public class LogReader {
                     } catch (Exception e) {
                         System.out.println("Error!");
                         printError("unbekannter Fehler");
+                        e.printStackTrace();
                     }
                     channel.disconnect();
                     session.disconnect();
                 } catch (Exception e) {
                     printError("unbekannter Fehler");
+                    e.printStackTrace();
                 }
             }
         });
@@ -183,5 +195,26 @@ public class LogReader {
     }
     public void setOutput(String output) {
         this.output = output;
+    }
+
+    public void startReading(Verbindung verbindung) {
+        if(!verbindung.safePasswort()) {
+            this.passwort = DefaultGUIController.passwörter.get(verbindung);
+        } else {
+            this.passwort = verbindung.getPasswort();
+        }
+
+        if(verbindung.getBetriebssystem().equals("Linux")) {
+            readLinux(verbindung);
+        } else if(verbindung.getBetriebssystem().equals("Windows")) {
+            readWindows(verbindung);
+        } else {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    listView.getItems().add("Ausgewähltes Betriebssystem wird (noch) nicht unterstützt!");
+                }
+            });
+        }
     }
 }

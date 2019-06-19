@@ -28,17 +28,17 @@
       </MenuBar>
       <GridPane fx:id="gridPane" gridLinesVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
         <columnConstraints>
-          <ColumnConstraints fx:id="gridPane_Menue" hgrow="SOMETIMES" maxWidth="200.0" prefWidth="200.0" />
-            <ColumnConstraints fx:id="gridPane_logs" hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="100.0" />
+          <ColumnConstraints fx:id="gridPane_Menue" hgrow="ALWAYS" maxWidth="200.0" minWidth="150.0" />
+            <ColumnConstraints fx:id="gridPane_logs" hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="0.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="ALWAYS" />
         </rowConstraints>
          <children>
             <VBox fx:id="vboxTitledPanes">
 
                   </VBox>
-            <AnchorPane fx:id="secondPane" GridPane.columnIndex="1">
+            <AnchorPane fx:id="secondPane" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" GridPane.columnIndex="1">
             </AnchorPane>
          </children>
       </GridPane>
