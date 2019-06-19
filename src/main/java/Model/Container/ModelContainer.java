@@ -19,6 +19,9 @@ public class ModelContainer {
     private String speicherort = "ordner.json";
     private ArrayList<Ordner> ordnerList = new ArrayList<>();
 
+    /**
+     *
+     */
     public ResultBoolean addOrdner(Ordner ordner) {
         try {
             this.ordnerList.add(ordner);
@@ -32,6 +35,9 @@ public class ModelContainer {
         return new ResultBoolean(false, "Fehler beim Anlegen des Ordners!");
     }
 
+    /**
+     *
+     */
     public ResultBoolean deleteOrdnerByUUID(UUID uuid) {
         for (Ordner ordner: ordnerList) {
             if(ordner.getUuid().equals(uuid)) {
@@ -48,6 +54,9 @@ public class ModelContainer {
 
     }
 
+    /**
+     *
+     */
     public void deleteVerbindungByUUID(UUID uuid) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung: ordner.getList()) {
@@ -60,6 +69,9 @@ public class ModelContainer {
         safeOrdner();
     }
 
+    /**
+     *
+     */
     public ResultBoolean addVerbindungToOrdner(Ordner ordner, Verbindung verbindung) {
         verbindung.setUuid(UUID.randomUUID());
         for (Ordner o: this.ordnerList) {
@@ -75,6 +87,9 @@ public class ModelContainer {
         return new ResultBoolean(true, "Verbindung und Ordner erfolgreich angelegt!");
     }
 
+    /**
+     *
+     */
     public Ordner getOrdnerByUUID(UUID uuid) {
         for (Ordner ordner: ordnerList) {
             if(ordner.getUuid().equals(uuid)) {
@@ -84,6 +99,9 @@ public class ModelContainer {
         return null;
     }
 
+    /**
+     *
+     */
     public Verbindung getVerbindungByUUID(UUID uuid) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung:ordner.getList()) {
@@ -95,6 +113,9 @@ public class ModelContainer {
         return null;
     }
 
+    /**
+     *
+     */
     public boolean editVerbindung(Verbindung old_verbindung, Verbindung new_verbindung) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung:ordner.getList()) {
@@ -109,6 +130,9 @@ public class ModelContainer {
         return false;
     }
 
+    /**
+     *
+     */
     public boolean editOrdner(Ordner old_ordner, Ordner new_ordner) {
         for(Ordner ordner: this.ordnerList) {
             if(ordner.equals(old_ordner)) {
@@ -119,6 +143,9 @@ public class ModelContainer {
         return false;
     }
 
+    /**
+     *
+     */
     public Ordner getOrdnerByVerbindung(Verbindung v) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung:ordner.getList()) {
@@ -130,6 +157,9 @@ public class ModelContainer {
         return null;
     }
 
+    /**
+     *
+     */
     public boolean safeOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -145,6 +175,9 @@ public class ModelContainer {
         return false;
     }
 
+    /**
+     *
+     */
     public boolean loadOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -172,14 +205,23 @@ public class ModelContainer {
         return false;
     }
 
+    /**
+     *
+     */
     public ArrayList<Ordner> getOrdnerList() {
         return ordnerList;
     }
 
+    /**
+     *
+     */
     public void setOrdnerList(ArrayList<Ordner> ordnerList) {
         this.ordnerList = ordnerList;
     }
 
+    /**
+     *
+     */
     public void print() {
         for (Ordner ordner: this.ordnerList) {
             System.out.println("Ordner - Bezeichnung: " + ordner.getBezeichnung());

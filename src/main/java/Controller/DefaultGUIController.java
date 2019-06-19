@@ -16,13 +16,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static javafx.geometry.Pos.BOTTOM_LEFT;
-import static javafx.geometry.Pos.BOTTOM_RIGHT;
 
 /**
  * Controller-Klasse für die FXML-Seite "defaultPage"
@@ -30,10 +26,11 @@ import static javafx.geometry.Pos.BOTTOM_RIGHT;
  */
 public class DefaultGUIController {
     //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
-
+    public static Map<Verbindung, String> passwörter = new HashMap<>();
     public static ModelContainer modelContainer = new ModelContainer();
     public static SessionContainer sessionContainer = new SessionContainer();
 
+    @FXML private AnchorPane defaultPage;
     @FXML private AnchorPane secondPane;
     @FXML private VBox vboxTitledPanes;
 
@@ -171,7 +168,7 @@ public class DefaultGUIController {
 
                     for (Verbindung verbindung: modelContainer.getOrdnerByUUID(uuid).getList()) {
                         if(sessionContainer.getCheckedVerbindungenUUIDs().contains(verbindung.getUuid())) {
-                                sessionContainer.removeVerbindung(verbindung);
+                                sessionContainer.closeVerbindung(verbindung);
                         }
                     }
                     modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
@@ -306,7 +303,7 @@ public class DefaultGUIController {
             ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
             ((TextField) felder.get(5)).setText(verbindung.getKeyfile());
             ((PasswordField) felder.get(6)).setText(verbindung.getPasswort());
-            ((CheckBox) felder.get(7)).setSelected(verbindung.isSafePasswort());
+            ((CheckBox) felder.get(7)).setSelected(verbindung.safePasswort());
             ((TextField) felder.get(8)).setText(verbindung.getLogpath());
             ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
             ((Button) felder.get(10)).setText("Bearbeiten");
@@ -340,7 +337,7 @@ public class DefaultGUIController {
             ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
             ((TextField) felder.get(5)).setText(verbindung.getKeyfile());
             ((PasswordField) felder.get(6)).setText(verbindung.getPasswort());
-            ((CheckBox) felder.get(7)).setSelected(verbindung.isSafePasswort());
+            ((CheckBox) felder.get(7)).setSelected(verbindung.safePasswort());
             ((TextField) felder.get(8)).setText(verbindung.getLogpath());
             ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
 
@@ -448,32 +445,59 @@ public class DefaultGUIController {
 
     /**
      * wird aufgerufen, wenn eine CheckBox angeklickt wird
+     * Überprüft, ob es bereits 4 aktive Verbindungen gibt
+     * Wenn nein, dann wird die Verbindung mithilfe der UUID der CheckBox geholt und weitergegeben
      * @param checked angeklickte CheckBox
+     * @see Dialogs#getPasswortDialog(Verbindung)
+     * @see #checkVerbindung(Verbindung)
+     * @see SessionContainer#createNewLogSession(Verbindung) (CheckBox)
+     * @see SessionContainer#closeVerbindung(Verbindung)
      */
     public void checkBoxClicked(CheckBox checked) {
         System.out.println("[ACTION] CheckBox geklickt - Source = " + checked);
         try {
-            int anz = sessionContainer.getCheckedVerbindungenUUIDs().size();
+            int anz = sessionContainer.countOpen();
+            Verbindung verbindung = modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()));
 
-            if(!checkVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()))) && checked.isSelected()) {
-                Dialogs.informationDialog("Bitte vervollständigen Sie die Eingaben der Verbindung!", "Information");
-                checked.setSelected(false);
-            } else {
-                if(anz == 1 && !checked.isSelected()) {
+            if(!checked.isSelected()) {
+                sessionContainer.closeVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId())));
+                if(anz == 1) {
                     secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_defaultSecondPage())));
                     ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
                     ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
-                } else if(anz == 0 && checked.isSelected()) {
+                }
+                // Wenn die Verbindung + Passwort in der Map stand --> entfernen
+                if(passwörter.containsKey(verbindung)) {
+                    passwörter.remove(verbindung);
+                }
+            } else {
+                // Wenn bereits 4 Sessions geöffnet sind, kann keine weitere geöffnet werden
+                if(anz == 4) {
+                    checked.setSelected(false);
+                    Dialogs.warnDialog("Sie dürfen nur maximal 4 Datein gleichzeitig auswählen!", "Warnung");
+                    return;
+                // Wenn checkVerbindung() false zurückliefert, ist die Verbindung nicht vollständig ausgefüllt und kann nicht geöffnet werden
+                } else if(!checkVerbindung(verbindung)) {
+                    Dialogs.informationDialog("Bitte vervollständigen Sie die Eingaben der Verbindung!", "Information");
+                    checked.setSelected(false);
+                    return;
+                // Wenn das Passwort nicht gespeichert wurde, muss das Passwort vor dem Öffnen erfragt werden
+                } else if(!verbindung.safePasswort()){
+                    String passwort = Dialogs.getPasswortDialog(verbindung);
+                    if(passwort != null) {
+                        passwörter.put(verbindung, passwort);
+                    } else {
+                        checked.setSelected(false);
+                        return;
+                    }
+                }
+                // Wenn die Anzahl 0 ist und eine Verbindung geöffnet werden soll, muss die "LogFilePage" gebaut werden
+                if(anz == 0) {
                     secondPane.getChildren().set(0, FXMLLoader.load(getClass().getResource(sessionContainer.getUrl_logFilePage())));
                     ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
                     ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
                 }
-
-                if(checked.isSelected()) {
-                    sessionContainer.addVerbindung(checked);
-                } else if(!checked.isSelected()) {
-                    sessionContainer.removeVerbindung(modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId())));
-                }
+                sessionContainer.createNewLogSession(verbindung);
             }
         } catch (IOException e) {
             e.printStackTrace();

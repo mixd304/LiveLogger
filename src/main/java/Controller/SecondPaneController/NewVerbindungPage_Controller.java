@@ -14,9 +14,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -199,12 +197,19 @@ public class NewVerbindungPage_Controller {
             verbindung.setPort(Integer.parseInt(port.getText()));
         }
         verbindung.setBenutzername(benutzername.getText());
-        verbindung.setPasswort(passwort.getText());
         verbindung.setSafePasswort(safePasswort.isSelected());
+        if(verbindung.safePasswort()) {
+            verbindung.setPasswort(passwort.getText());
+        } else {
+            verbindung.setPasswort(null);
+        }
         verbindung.setKeyfile(keyfile.getText());
         verbindung.setLogpath(logpath.getText());
-        verbindung.setBetriebssystem(betriebssystem.getValue());
-
+        if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
+            verbindung.setBetriebssystem("");
+        } else {
+            verbindung.setBetriebssystem(betriebssystem.getValue());
+        }
         return verbindung;
     }
 
@@ -230,6 +235,9 @@ public class NewVerbindungPage_Controller {
         DefaultGUIController.sessionContainer.rebuildLogs();
     }
 
+    /**
+     * Öffnet ein Windows Explorer zum auswählen einer Datei, wenn in das Textfeld vom keyfile geklickt wird
+     */
     public void openFileChooser(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Keyfile auswählen");

@@ -2,12 +2,11 @@ package Model.Container;
 
 import Controller.DefaultGUIController;
 import Controller.Dialogs;
+import Model.Data.ResultBoolean;
 import Model.Data.Verbindung;
 import Model.Data.LogSession;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -35,24 +34,6 @@ public class SessionContainer {
     }
 
     /**
-     * Wird aufgerufen, wenn eine CheckBox angeklickt wird
-     * Überprüft, ob es bereits 4 aktive Verbindungen gibt
-     * Wenn nein, dann wird die Verbindung mithilfe der UUID der CheckBox geholt und weitergegeben
-     * @param checked angeklickte CheckBox
-     * @see ModelContainer#getVerbindungByUUID(UUID)
-     * @see #createNewLogSession(Verbindung)
-     */
-    public void addVerbindung(CheckBox checked) {
-        if (logSessionList.size() < 4) {
-            Verbindung verbindung = DefaultGUIController.modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()));
-            this.createNewLogSession(verbindung);
-        } else {
-            checked.setSelected(false);
-            Dialogs.warnDialog("Sie dürfen nur maximal 4 Datein gleichzeitig auswählen!", "Warnung");
-        }
-    }
-
-    /**
      * Überprüft die Anzahl der aktiven Verbindungen und gibt den entsprechende Pfad der FXML-Seite zurück
      * @return Pfad zur FXML-Seite
      */
@@ -70,7 +51,7 @@ public class SessionContainer {
      * @see #reset_log(int)
      * @see #buildListViews()
      */
-    public void removeVerbindung(Verbindung verbindung) {
+    public void closeVerbindung(Verbindung verbindung) {
         LogSession logSession = getLogSessionByID(verbindung.getUuid().toString());
         if(logSession != null) {
             int pos = this.logSessionList.indexOf(logSession);
@@ -158,6 +139,7 @@ public class SessionContainer {
      */
     public void createNewLogSession(Verbindung verbindung) {
         int pos = this.logSessionList.size();
+
         LogSession logSession = new LogSession();
         logSession.setId(verbindung.getUuid().toString());
         logSession.setVerbindung(verbindung);
@@ -178,15 +160,9 @@ public class SessionContainer {
         logSession.getListView().getItems().add("Versuche Verbindung herzustellen...");
 
         LogReader logReader = new LogReader(logSession.getListView());
+        // nur für Testzwecke bei Windows Servern benötigt
         logReader.setOutput(verbindung.getBezeichnung());
-
-        if(verbindung.getBetriebssystem().equals("Linux")) {
-            logReader.readLinux(verbindung);
-        } else if(verbindung.getBetriebssystem().equals("Windows")) {
-            logReader.readWindows(verbindung);
-        } else {
-            logSession.getListView().getItems().add("Ausgewähltes Betriebssystem wird (noch) nicht unterstützt!");
-        }
+        logReader.startReading(verbindung);
 
         logSession.setLogReader(logReader);
         this.logSessionList.add(logSession);
@@ -216,58 +192,63 @@ public class SessionContainer {
      * Setzt alle Höhen und Breiten der GridPane-Felder entsprechend für 1 geöffnetes Log
      */
     private void buildListViews_1() {
-        /* Zeile 1 */
-        logFilePage.getColumnConstraints().get(0).setPercentWidth(100);
-        /* Zeile 2 */
-        logFilePage.getColumnConstraints().get(1).setPercentWidth(0);
         /* Spalte 1 */
+        logFilePage.getColumnConstraints().get(0).setPercentWidth(100);
         /* Spalte 2 */
-        logFilePage.getRowConstraints().get(1).setMinHeight(logFilePage.getMinHeight() - 17);
+        logFilePage.getColumnConstraints().get(1).setPercentWidth(0);
+        /* Zeile 1 */
+        /* Zeile 2 */
         logFilePage.getRowConstraints().get(1).setPrefHeight(logFilePage.getPrefHeight() - 17);
-        /* Spalte 3 */
+        /* Zeile 3 */
         logFilePage.getRowConstraints().get(2).setMinHeight(0);
         logFilePage.getRowConstraints().get(2).setPrefHeight(0);
-        /* Spalte 4 */
+        logFilePage.getRowConstraints().get(2).setMaxHeight(0);
+        /* Zeile 4 */
         logFilePage.getRowConstraints().get(3).setMinHeight(0);
         logFilePage.getRowConstraints().get(3).setPrefHeight(0);
+        logFilePage.getRowConstraints().get(3).setMaxHeight(0);
     }
     /**
      * Setzt alle Höhen und Breiten der GridPane-Felder entsprechend für 2 gleichzeitig geöffnete Logs
      */
     private void buildListViews_2() {
-        /* Zeile 1 */
-        logFilePage.getColumnConstraints().get(0).setPercentWidth(50);
-        /* Zeile 2 */
-        logFilePage.getColumnConstraints().get(1).setPercentWidth(50);
         /* Spalte 1 */
+        logFilePage.getColumnConstraints().get(0).setPercentWidth(50);
         /* Spalte 2 */
-        logFilePage.getRowConstraints().get(1).setMinHeight(logFilePage.getMinHeight() - 17);
+        logFilePage.getColumnConstraints().get(1).setPercentWidth(50);
+        /* Zeile 1 */
+        /* Zeile 2 */
+        //logFilePage.getRowConstraints().get(1).setMinHeight(logFilePage.getMinHeight() - 17);
         logFilePage.getRowConstraints().get(1).setPrefHeight(logFilePage.getPrefHeight() - 17);
-        /* Spalte 3 */
+        /* Zeile 3 */
         logFilePage.getRowConstraints().get(2).setMinHeight(0);
         logFilePage.getRowConstraints().get(2).setPrefHeight(0);
-        /* Spalte 4 */
+        logFilePage.getRowConstraints().get(2).setMaxHeight(0);
+        /* Zeile 4 */
         logFilePage.getRowConstraints().get(3).setMinHeight(0);
         logFilePage.getRowConstraints().get(3).setPrefHeight(0);
+        logFilePage.getRowConstraints().get(3).setMaxHeight(0);
     }
     /**
      * Setzt alle Höhen und Breiten der GridPane-Felder entsprechend für 3 oder 4 gleichzeitig geöffnete Logs
      */
     private void buildListViews_3() {
-        /* Zeile 1 */
-        logFilePage.getColumnConstraints().get(0).setPercentWidth(50);
-        /* Zeile 2 */
-        logFilePage.getColumnConstraints().get(1).setPercentWidth(50);
         /* Spalte 1 */
+        logFilePage.getColumnConstraints().get(0).setPercentWidth(50);
         /* Spalte 2 */
-        logFilePage.getRowConstraints().get(1).setMinHeight(logFilePage.getMinHeight() / 2 - 17);
-        logFilePage.getRowConstraints().get(1).setPrefHeight(logFilePage.getPrefHeight() / 2 - 17);
-        /* Spalte 3 */
+        logFilePage.getColumnConstraints().get(1).setPercentWidth(50);
+        /* Zeile 1 */
+        /* Zeile 2 */
+        //logFilePage.getRowConstraints().get(1).setMinHeight(logFilePage.getMinHeight() / 2 - 17);
+        logFilePage.getRowConstraints().get(1).setPrefHeight(100);
+        /* Zeile 3 */
         logFilePage.getRowConstraints().get(2).setMinHeight(17);
         logFilePage.getRowConstraints().get(2).setPrefHeight(17);
-        /* Spalte 4 */
-        logFilePage.getRowConstraints().get(3).setMinHeight(logFilePage.getMinHeight() / 2 - 17);
-        logFilePage.getRowConstraints().get(3).setPrefHeight(logFilePage.getPrefHeight() / 2 - 17);
+        logFilePage.getRowConstraints().get(2).setMaxHeight(17);
+        /* Zeile 4 */
+        //logFilePage.getRowConstraints().get(3).setMinHeight(logFilePage.getMinHeight() / 2 - 17);
+        logFilePage.getRowConstraints().get(3).setPrefHeight(logFilePage.getRowConstraints().get(1).getPrefHeight());
+        logFilePage.getRowConstraints().get(3).setMaxHeight(Control.USE_COMPUTED_SIZE);
     }
 
     /**
@@ -301,6 +282,9 @@ public class SessionContainer {
     }
 
     // Getter und Setter
+    public int countOpen() {
+        return this.logSessionList.size();
+    }
     public String getUrl_defaultSecondPage() {
         return url_defaultSecondPage;
     }
