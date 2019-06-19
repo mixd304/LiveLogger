@@ -7,11 +7,11 @@ import Model.Data.Verbindung;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -24,7 +24,7 @@ import java.util.UUID;
  *
  */
 public class NewVerbindungPage_Controller {
-    @FXML Pane newVerbindungPage;
+    @FXML GridPane newVerbindungPage;
     // alle Eingabefelder
     @FXML ComboBox<String> ordner;
     @FXML TextField bezeichnung;
@@ -76,7 +76,7 @@ public class NewVerbindungPage_Controller {
         if(((Button) actionEvent.getSource()).getId().equals("submitButton")) {
             submitButtonClicked_newVerbindung();
         } else if (((Button) actionEvent.getSource()).getId().equals("editVerbindungButton")) {
-            submitButtonClicked_editVerbindung(UUID.fromString(((Button) actionEvent.getSource()).getParent().getChildrenUnmodifiable().get(0).getId()));
+            submitButtonClicked_editVerbindung(UUID.fromString(((Node) actionEvent.getSource()).getParent().getId()));
         }
     }
 
@@ -176,6 +176,8 @@ public class NewVerbindungPage_Controller {
                 }
             }
             DefaultGUIController.modelContainer.safeOrdner();
+            DefaultGUIController.modelContainer.getVerbindungByUUID(uuid).print();
+
             DefaultGUIController.rebuildGUI();
         } catch (Exception e) {
             e.printStackTrace();
@@ -198,7 +200,7 @@ public class NewVerbindungPage_Controller {
         }
         verbindung.setBenutzername(benutzername.getText());
         verbindung.setSafePasswort(safePasswort.isSelected());
-        if(verbindung.safePasswort()) {
+        if(verbindung.isSafePasswort()) {
             verbindung.setPasswort(passwort.getText());
         } else {
             verbindung.setPasswort(null);
@@ -219,20 +221,22 @@ public class NewVerbindungPage_Controller {
      */
     public void cancelButtonClicked(ActionEvent actionEvent) throws IOException {
         System.out.println("[AKTION] Cancel Button Clicked");
+        if(Dialogs.confirmDialog("Wollen Sie die Aktion wirklich abbrechen?\n" +
+                "Hinweis: alle eingetragenen Daten gehen verloren!")) {
+            DefaultGUIController.sessionContainer.safeLogs();
+            AnchorPane parent = (AnchorPane) newVerbindungPage.getParent();
+            int index = parent.getChildren().indexOf(newVerbindungPage);
+            parent.getChildren().set(index, FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
 
-        DefaultGUIController.sessionContainer.safeLogs();
-        AnchorPane parent = (AnchorPane) newVerbindungPage.getParent();
-        int index = parent.getChildren().indexOf(newVerbindungPage);
-        parent.getChildren().set(index, FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
-
-        if(parent.getChildren().get(index).getClass().equals(GridPane.class)) {
-            ((GridPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
-            ((GridPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
-        } else if(parent.getChildren().get(index).getClass().equals(AnchorPane.class)) {
-            ((AnchorPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
-            ((AnchorPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
+            if(parent.getChildren().get(index).getClass().equals(GridPane.class)) {
+                ((GridPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
+                ((GridPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
+            } else if(parent.getChildren().get(index).getClass().equals(AnchorPane.class)) {
+                ((AnchorPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
+                ((AnchorPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
+            }
+            DefaultGUIController.sessionContainer.rebuildLogs();
         }
-        DefaultGUIController.sessionContainer.rebuildLogs();
     }
 
     /**

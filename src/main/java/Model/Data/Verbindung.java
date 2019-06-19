@@ -82,7 +82,7 @@ public class Verbindung {
         this.betriebssystem = betriebssystem;
     }
 
-    public boolean safePasswort() {
+    public boolean isSafePasswort() {
         return safePasswort;
     }
 
@@ -111,7 +111,7 @@ public class Verbindung {
                 ", port=" + port +
                 ", benutzername='" + benutzername + '\'' +
                 ", passwort='" + passwort + '\'' +
-                ", safePasswort=" + safePasswort +
+                ", isSafePasswort=" + safePasswort +
                 ", logpath='" + logpath + '\'' +
                 ", betriebssystem='" + betriebssystem + '\'' +
                 '}');

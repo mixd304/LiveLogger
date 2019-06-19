@@ -198,7 +198,7 @@ public class LogReader {
     }
 
     public void startReading(Verbindung verbindung) {
-        if(!verbindung.safePasswort()) {
+        if(!verbindung.isSafePasswort()) {
             this.passwort = DefaultGUIController.passwörter.get(verbindung);
         } else {
             this.passwort = verbindung.getPasswort();

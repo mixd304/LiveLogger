@@ -287,33 +287,27 @@ public class DefaultGUIController {
     /**
      * zeigt die Daten einer Verbindung und ermöglicht es diese zu verändern
      * @param uuid UUID der Verbindung, welche editiert werden soll
+     * @see #fillNewVerbindungPage(ObservableList, Verbindung)
      */
     private void editVerbindung(UUID uuid) {
         try {
             Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
-            Pane pane = (Pane) newLoadedPane.getChildren().get(0);
-            pane.setId(uuid.toString());
-            ObservableList<Node> felder = pane.getChildren();
 
-            ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
-            ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
-            ((TextField) felder.get(2)).setText(verbindung.getHost());
-            ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
-            ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
-            ((TextField) felder.get(5)).setText(verbindung.getKeyfile());
-            ((PasswordField) felder.get(6)).setText(verbindung.getPasswort());
-            ((CheckBox) felder.get(7)).setSelected(verbindung.safePasswort());
-            ((TextField) felder.get(8)).setText(verbindung.getLogpath());
-            ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
-            ((Button) felder.get(10)).setText("Bearbeiten");
-            ((Button) felder.get(10)).setId("editVerbindungButton");
 
-            newLoadedPane.getChildren().removeAll();
-            newLoadedPane.getChildren().addAll(felder);
+
+            ObservableList<Node> felder = newLoadedPane.getChildren();
+            newLoadedPane.setId(uuid.toString());
+
+            fillNewVerbindungPage(felder, verbindung);
+
+            // Ändern der ID des Submit Buttons, damit erkannt werden kann, ob Update oder Neu
+            ((Button) felder.get(9)).setText("Bearbeiten");
+            ((Button) felder.get(9)).setId("editVerbindungButton");
+
             secondPane.getChildren().set(0, newLoadedPane);
-            ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
-            ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+            ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+            ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -322,35 +316,43 @@ public class DefaultGUIController {
     /**
      * benutzt die Daten einer Verbindung als Vorlage zur Erstellung einer neuen
      * @param uuid UUID der Verbindung, welche als Vorlage verwendet werden soll
+     * @see #fillNewVerbindungPage(ObservableList, Verbindung)
      */
     private void copyVerbindung(UUID uuid) {
         try {
             Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
-            Pane pane = (Pane) newLoadedPane.getChildren().get(0);
-            ObservableList<Node> felder = pane.getChildren();
+            ObservableList<Node> felder = newLoadedPane.getChildren();
 
-            ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
-            ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
-            ((TextField) felder.get(2)).setText(verbindung.getHost());
-            ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
-            ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
-            ((TextField) felder.get(5)).setText(verbindung.getKeyfile());
-            ((PasswordField) felder.get(6)).setText(verbindung.getPasswort());
-            ((CheckBox) felder.get(7)).setSelected(verbindung.safePasswort());
-            ((TextField) felder.get(8)).setText(verbindung.getLogpath());
-            ((ChoiceBox<String>) felder.get(9)).getSelectionModel().select(verbindung.getBetriebssystem());
+            fillNewVerbindungPage(felder, verbindung);
 
-            newLoadedPane.getChildren().removeAll();
+            newLoadedPane.getChildren().clear();
             newLoadedPane.getChildren().addAll(felder);
             secondPane.getChildren().set(0, newLoadedPane);
-            ((AnchorPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
-            ((AnchorPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
+            ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+            ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Füllt alle Input Felder der Seite mit den übergebenen Daten einer Verbindung
+     * @param felder zu befüllende Felder
+     * @param verbindung Daten mit welchen die Felder gefüllt werden sollen
+     */
+    private void fillNewVerbindungPage(ObservableList<Node> felder, Verbindung verbindung) {
+        ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
+        ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
+        ((TextField) felder.get(2)).setText(verbindung.getHost());
+        ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
+        ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
+        ((PasswordField) felder.get(5)).setText(verbindung.getPasswort());
+        ((TextField) felder.get(6)).setText(verbindung.getKeyfile());
+        ((TextField) felder.get(7)).setText(verbindung.getLogpath());
+        ((ChoiceBox<String>) felder.get(8)).getSelectionModel().select(verbindung.getBetriebssystem());
+        ((CheckBox) felder.get(11)).setSelected(verbindung.isSafePasswort());
+    }
 
     /**
      * wird aufgerufen, wenn im Menü-Reiter auf "Neu -> Ordner" geklickt wird
@@ -432,6 +434,8 @@ public class DefaultGUIController {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
         secondPane.getChildren().set(0, newLoadedPane);
+        ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
+        ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
     }
 
     /**
@@ -482,7 +486,7 @@ public class DefaultGUIController {
                     checked.setSelected(false);
                     return;
                 // Wenn das Passwort nicht gespeichert wurde, muss das Passwort vor dem Öffnen erfragt werden
-                } else if(!verbindung.safePasswort()){
+                } else if(!verbindung.isSafePasswort()){
                     String passwort = Dialogs.getPasswortDialog(verbindung);
                     if(passwort != null) {
                         passwörter.put(verbindung, passwort);

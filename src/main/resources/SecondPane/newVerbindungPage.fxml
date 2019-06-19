@@ -5,28 +5,51 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane fx:id="newVerbindungPage" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.NewVerbindungPage_Controller">
+<GridPane fx:id="newVerbindungPage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.SecondPaneController.NewVerbindungPage_Controller">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES" />
+   </rowConstraints>
    <children>
-      <Pane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0">
-         <children>
-            <ComboBox fx:id="ordner" editable="true" layoutX="300.0" layoutY="50.0" prefWidth="200.0" promptText="Ordner" />
-            <TextField fx:id="bezeichnung" layoutX="100.0" layoutY="150.0" prefHeight="25.0" prefWidth="600.0" promptText="Bezeichnung" />
-            <TextField fx:id="host" layoutX="100.0" layoutY="250.0" prefHeight="25.0" prefWidth="250.0" promptText="IP-Adresse" />
-            <TextField fx:id="port" layoutX="450.0" layoutY="250.0" prefHeight="25.0" prefWidth="250.0" promptText="Port" />
-            <TextField fx:id="benutzername" layoutX="100.0" layoutY="350.0" prefHeight="25.0" prefWidth="250.0" promptText="Benutzername" />
-            <TextField fx:id="keyfile" layoutX="100.0" layoutY="450.0" prefHeight="25.0" onMouseClicked="#openFileChooser" prefWidth="600.0" promptText="Key-File" />
-            <PasswordField fx:id="passwort" layoutX="450.0" layoutY="350.0" prefHeight="25.0" prefWidth="250.0" promptText="Passwort" />
-            <CheckBox fx:id="safePasswort" layoutX="550.0" layoutY="380.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="150.0" text="Passwort speichern" />
-            <TextField fx:id="logpath" layoutX="100.0" layoutY="550.0" prefHeight="25.0" prefWidth="600.0" promptText="Log-Path" />
-            <ChoiceBox fx:id="betriebssystem" layoutX="275.0" layoutY="625.0" prefWidth="250.0" />
-            <Button fx:id="submitButton" layoutX="150.0" layoutY="700.0" mnemonicParsing="false" onAction="#submitButtonClicked" prefHeight="25.0" prefWidth="150.0" text="Bestätigen" />
-            <Button fx:id="cancelButton" layoutX="500.0" layoutY="700.0" mnemonicParsing="false" onAction="#cancelButtonClicked" prefHeight="25.0" prefWidth="150.0" text="Abbrechen" />
-         </children>
-      </Pane>
+      <ComboBox fx:id="ordner" editable="true" prefWidth="200.0" promptText="Ordner" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+      <TextField fx:id="bezeichnung" promptText="Bezeichnung" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" />
+      <TextField fx:id="host" promptText="IP-Adresse" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <TextField fx:id="port" promptText="Port" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+      <TextField fx:id="benutzername" promptText="Benutzername" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+      <PasswordField fx:id="passwort" promptText="Passwort" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+      <TextField fx:id="keyfile" onMouseClicked="#openFileChooser" promptText="Key-File" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="10" />
+      <TextField fx:id="logpath" promptText="Log-Path" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="12" />
+      <ChoiceBox fx:id="betriebssystem" prefWidth="250.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="14" />
+      <Button fx:id="submitButton" mnemonicParsing="false" onAction="#submitButtonClicked" prefWidth="150.0" text="Bestätigen" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="16" />
+      <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancelButtonClicked" prefWidth="150.0" text="Abbrechen" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="16" />
+      <CheckBox fx:id="safePasswort" mnemonicParsing="false" prefHeight="20.0" prefWidth="150.0" text="Passwort speichern" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="8" GridPane.valignment="BOTTOM" />
    </children>
-</AnchorPane>
+</GridPane>

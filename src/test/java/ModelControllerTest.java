@@ -52,7 +52,7 @@ public class ModelControllerTest {
         verbindung1.setBenutzername("root");
         verbindung1.setHost("10.4.245.16");
         verbindung1.setLogpath("/opt/custom/tomcat/base/logs/catalina.out");
-        verbindung1_1.setSafePasswort(false);
+        verbindung1.setSafePasswort(false);
         verbindung1.setPort(22);
         verbindung1.setBetriebssystem("Linux");
         verbindung1.setUuid(UUID.randomUUID());
