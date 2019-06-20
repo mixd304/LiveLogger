@@ -14,7 +14,6 @@ public class Main {
                 new StartProgramm().ProgrammStart();
             }
         });
-        //new StartProgramm().ProgrammStart();
     }
 
     public static ExecutorService getExecutor() {
