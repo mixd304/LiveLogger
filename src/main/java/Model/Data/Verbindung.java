@@ -12,6 +12,7 @@ public class Verbindung {
     private boolean safePasswort;
     private String keyfile;
     private String logpath;
+    private String precommand;
     private String betriebssystem;
 
     public Verbindung() {
@@ -98,6 +99,14 @@ public class Verbindung {
         this.keyfile = keyfile;
     }
 
+    public String getPrecommand() {
+        return precommand;
+    }
+
+    public void setPrecommand(String precommand) {
+        this.precommand = precommand;
+    }
+
     @Override
     public String toString() {
         return this.getBezeichnung();
@@ -110,7 +119,6 @@ public class Verbindung {
                 ", host='" + host + '\'' +
                 ", port=" + port +
                 ", benutzername='" + benutzername + '\'' +
-                ", passwort='" + passwort + '\'' +
                 ", isSafePasswort=" + safePasswort +
                 ", logpath='" + logpath + '\'' +
                 ", betriebssystem='" + betriebssystem + '\'' +

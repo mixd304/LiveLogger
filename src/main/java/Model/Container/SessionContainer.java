@@ -1,8 +1,5 @@
 package Model.Container;
 
-import Controller.DefaultGUIController;
-import Controller.Dialogs;
-import Model.Data.ResultBoolean;
 import Model.Data.Verbindung;
 import Model.Data.LogSession;
 import javafx.collections.ObservableList;

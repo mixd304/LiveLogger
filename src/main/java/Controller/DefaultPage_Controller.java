@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import javax.xml.soap.Text;
 import java.io.*;
 import java.util.*;
 
@@ -24,7 +25,7 @@ import static javafx.geometry.Pos.BOTTOM_LEFT;
  * Controller-Klasse für die FXML-Seite "defaultPage"
  *
  */
-public class DefaultGUIController {
+public class DefaultPage_Controller {
     //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
     public static Map<Verbindung, String> passwörter = new HashMap<>();
     public static ModelContainer modelContainer = new ModelContainer();
@@ -293,17 +294,15 @@ public class DefaultGUIController {
         try {
             Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
-
-
-
             ObservableList<Node> felder = newLoadedPane.getChildren();
+
             newLoadedPane.setId(uuid.toString());
 
             fillNewVerbindungPage(felder, verbindung);
 
             // Ändern der ID des Submit Buttons, damit erkannt werden kann, ob Update oder Neu
-            ((Button) felder.get(9)).setText("Bearbeiten");
-            ((Button) felder.get(9)).setId("editVerbindungButton");
+            ((Button) felder.get(7)).setText("Bearbeiten");
+            ((Button) felder.get(7)).setId("editVerbindungButton");
 
             secondPane.getChildren().set(0, newLoadedPane);
             ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
@@ -324,10 +323,9 @@ public class DefaultGUIController {
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
             ObservableList<Node> felder = newLoadedPane.getChildren();
 
+            newLoadedPane.setId(uuid.toString());
             fillNewVerbindungPage(felder, verbindung);
 
-            newLoadedPane.getChildren().clear();
-            newLoadedPane.getChildren().addAll(felder);
             secondPane.getChildren().set(0, newLoadedPane);
             ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
             ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
@@ -342,16 +340,20 @@ public class DefaultGUIController {
      * @param verbindung Daten mit welchen die Felder gefüllt werden sollen
      */
     private void fillNewVerbindungPage(ObservableList<Node> felder, Verbindung verbindung) {
+        for(int i = 0; i < felder.size(); i++) {
+            System.out.println("Feld " + i + " = " + felder.get(i).toString());
+        };
         ((ComboBox<Ordner>) felder.get(0)).getSelectionModel().select(modelContainer.getOrdnerList().indexOf(modelContainer.getOrdnerByVerbindung(verbindung)));
         ((TextField) felder.get(1)).setText(verbindung.getBezeichnung());
         ((TextField) felder.get(2)).setText(verbindung.getHost());
         ((TextField) felder.get(3)).setText(Integer.toString(verbindung.getPort()));
         ((TextField) felder.get(4)).setText(verbindung.getBenutzername());
         ((PasswordField) felder.get(5)).setText(verbindung.getPasswort());
-        ((TextField) felder.get(6)).setText(verbindung.getKeyfile());
-        ((TextField) felder.get(7)).setText(verbindung.getLogpath());
-        ((ChoiceBox<String>) felder.get(8)).getSelectionModel().select(verbindung.getBetriebssystem());
-        ((CheckBox) felder.get(11)).setSelected(verbindung.isSafePasswort());
+        ((ChoiceBox<String>) felder.get(6)).getSelectionModel().select(verbindung.getBetriebssystem());
+        ((CheckBox) felder.get(9)).setSelected(verbindung.isSafePasswort());
+        ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(0)).setText(verbindung.getKeyfile());
+        ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(1)).setText(verbindung.getLogpath());
+        ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(2)).setText(verbindung.getPrecommand());
     }
 
     /**
@@ -458,7 +460,7 @@ public class DefaultGUIController {
      * @see SessionContainer#closeVerbindung(Verbindung)
      */
     public void checkBoxClicked(CheckBox checked) {
-        System.out.println("[ACTION] CheckBox geklickt - Source = " + checked);
+        System.out.println("[ACTION] CheckBox geklickt - Source = [ " + checked.getId() + ", " + checked.getText() + " ]");
         try {
             int anz = sessionContainer.countOpen();
             Verbindung verbindung = modelContainer.getVerbindungByUUID(UUID.fromString(checked.getId()));

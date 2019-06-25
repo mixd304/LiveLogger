@@ -1,6 +1,6 @@
 package Controller.SecondPaneController;
 
-import Controller.DefaultGUIController;
+import Controller.DefaultPage_Controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -32,8 +32,8 @@ public class LogFilePage_Controller {
         listviewList.add(log_2);
         listviewList.add(log_3);
         listviewList.add(log_4);
-        DefaultGUIController.sessionContainer.setLogFilePage(logFilePage);
-        DefaultGUIController.sessionContainer.setLabelList(labelList);
-        DefaultGUIController.sessionContainer.setListviewList(listviewList);
+        DefaultPage_Controller.sessionContainer.setLogFilePage(logFilePage);
+        DefaultPage_Controller.sessionContainer.setLabelList(labelList);
+        DefaultPage_Controller.sessionContainer.setListviewList(listviewList);
     }
 }

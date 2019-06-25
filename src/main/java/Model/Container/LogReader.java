@@ -1,8 +1,8 @@
 package Model.Container;
 
-import Controller.DefaultGUIController;
+import Controller.DefaultPage_Controller;
 import Model.Data.Verbindung;
-import ProgrammStart.Main;
+import ProgrammStart.StartProgramm;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
 import javafx.scene.control.ListView;
@@ -40,7 +40,7 @@ public class LogReader {
      * @see #writeLine(String)
      */
     public void readWindows(Verbindung verbindung) {
-        Main.executor.execute(new Runnable() {
+        StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {
                 thread = Thread.currentThread();
@@ -85,32 +85,43 @@ public class LogReader {
      * @see #writeLine(String)
      */
     public void readLinux(Verbindung verbindung) {
-        Main.executor.execute(new Runnable() {
+        StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {
                 thread = Thread.currentThread();
                 running = true;
                 try {
-                    String command = "tail -f -n 200 " + verbindung.getLogpath();
+                    //String command = "tail -f -n 200 " + verbindung.getLogpath();
+                    String command = verbindung.getLogpath();
 
                     JSch jsch = new JSch();
-                    Session session = jsch.getSession(verbindung.getBenutzername(), verbindung.getHost(), verbindung.getPort());
-                    Properties config = new Properties();
+                    Session session;
+                    Channel channel;
+                    if(verbindung.getKeyfile() != "" && verbindung.getKeyfile() != null) {
+                        jsch.addIdentity(verbindung.getKeyfile(), verbindung.getPasswort());
+                        session = jsch.getSession(verbindung.getBenutzername(), verbindung.getHost(), verbindung.getPort());
+                        session.setConfig("PreferredAuthentications", "publickey,gssapi-with-mic,keyboard-interactive,password");
 
-                    if(verbindung.getKeyfile() == "" || verbindung.getKeyfile() == null) {
+                        Properties config = new Properties();
                         config.put("StrictHostKeyChecking", "no");
+                        session.setConfig(config);
+                        session.connect();
+
+                        // sudo -u tomcat tail -f -n 500 /opt/as/tomcat/base/logs/catalina.out
+                        channel = session.openChannel("exec");
+                        ((ChannelExec) channel).setCommand(command);
                     } else {
-                        // TODO KEYFILE
+                        session = jsch.getSession(verbindung.getBenutzername(), verbindung.getHost(), verbindung.getPort());
+                        session.setPassword(passwort);
+
+                        Properties config = new Properties();
                         config.put("StrictHostKeyChecking", "no");
-
-                        //config.put("StrictHostKeyChecking", new File(verbindung.getKeyfile()));
+                        session.setConfig(config);
+                        session.connect();
+                        channel = session.openChannel("exec");
+                        ((ChannelExec) channel).setCommand(command);
                     }
-                    session.setConfig(config);
-                    session.setPassword(passwort);
-                    session.connect();
 
-                    Channel channel = session.openChannel("exec");
-                    ((ChannelExec) channel).setCommand(command);
                     channel.setInputStream(null);
                     ((ChannelExec) channel).setErrStream(System.err);
 
@@ -127,10 +138,13 @@ public class LogReader {
                         if(bufferedReader.readLine() == null){
                             printError("Logpfad ungültig");
                         } else {
+                            System.out.println("Ausgabenstart");
+                            System.out.println("THREAD Interrupted = " + thread.isInterrupted());
                             while (((line = bufferedReader.readLine()) != null) && !thread.isInterrupted()) {
+                                System.out.println("Line = " + line);
                                 writeLine(line);
                                 try {
-                                    Thread.sleep(10);
+                                    Thread.sleep(5);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -139,15 +153,14 @@ public class LogReader {
                         bufferedReader.close();
                         inputReader.close();
                     } catch (Exception e) {
-                        System.out.println("Error!");
-                        printError("unbekannter Fehler");
                         e.printStackTrace();
+                        printError("unbekannter Fehler - Fehlerquelle 1");
                     }
                     channel.disconnect();
                     session.disconnect();
                 } catch (Exception e) {
-                    printError("unbekannter Fehler");
                     e.printStackTrace();
+                    printError("unbekannter Fehler - Fehlerquelle 2");
                 }
             }
         });
@@ -199,7 +212,7 @@ public class LogReader {
 
     public void startReading(Verbindung verbindung) {
         if(!verbindung.isSafePasswort()) {
-            this.passwort = DefaultGUIController.passwörter.get(verbindung);
+            this.passwort = DefaultPage_Controller.passwörter.get(verbindung);
         } else {
             this.passwort = verbindung.getPasswort();
         }

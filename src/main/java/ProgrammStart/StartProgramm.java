@@ -9,9 +9,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class StartProgramm extends Application {
+    public static ExecutorService executor = Executors.newFixedThreadPool(5);
     private static Stage stage;
 
     public void ProgrammStart() {

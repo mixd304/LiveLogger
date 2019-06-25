@@ -1,7 +1,7 @@
 package Controller.SecondPaneController;
 
 import Controller.Dialogs;
-import Controller.DefaultGUIController;
+import Controller.DefaultPage_Controller;
 import Model.Data.Ordner;
 import Model.Data.Verbindung;
 import javafx.event.ActionEvent;
@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -35,12 +36,13 @@ public class NewVerbindungPage_Controller {
     @FXML CheckBox safePasswort;
     @FXML TextField logpath;
     @FXML TextField keyfile;
+    @FXML TextField precommand;
     @FXML ChoiceBox<String> betriebssystem;
 
     @FXML
     private void initialize() {
         System.out.println("[INIT] newVerbindungPage geladen");
-        DefaultGUIController.modelContainer.loadOrdner();
+        DefaultPage_Controller.modelContainer.loadOrdner();
         fillComboBoxOrdner();
         fillChoiceBoxBetriebssystem();
     }
@@ -50,7 +52,7 @@ public class NewVerbindungPage_Controller {
      *
      */
     private void fillComboBoxOrdner() {
-        for (Ordner o: DefaultGUIController.modelContainer.getOrdnerList()) {
+        for (Ordner o: DefaultPage_Controller.modelContainer.getOrdnerList()) {
             ordner.getItems().add(o.getBezeichnung());
         }
     }
@@ -99,14 +101,14 @@ public class NewVerbindungPage_Controller {
                 } else {
                     new_ordner.setBezeichnung(ordner.getValue());
                     new_ordner.setUuid(UUID.randomUUID());
-                    DefaultGUIController.modelContainer.addOrdner(new_ordner);
+                    DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
                 }
             } else {
-                Ordner ordnerByIndex = DefaultGUIController.modelContainer.getOrdnerList().get(selected_index);
+                Ordner ordnerByIndex = DefaultPage_Controller.modelContainer.getOrdnerList().get(selected_index);
                 if(!ordnerByIndex.getBezeichnung().equals(ordner.getValue())) {
                     new_ordner.setBezeichnung(ordner.getValue());
                     new_ordner.setUuid(UUID.randomUUID());
-                    DefaultGUIController.modelContainer.addOrdner(new_ordner);
+                    DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
                 } else {
                     new_ordner = ordnerByIndex;
                 }
@@ -135,10 +137,10 @@ public class NewVerbindungPage_Controller {
 
             Verbindung new_verbindung = getInserts();
 
-            System.out.println(DefaultGUIController.modelContainer.addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());
-            DefaultGUIController.modelContainer.safeOrdner();
+            System.out.println(DefaultPage_Controller.modelContainer.addVerbindungToOrdner(new_ordner, new_verbindung).getBemerkung());
+            DefaultPage_Controller.modelContainer.safeOrdner();
 
-            DefaultGUIController.rebuildGUI();
+            DefaultPage_Controller.rebuildGUI();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,33 +154,33 @@ public class NewVerbindungPage_Controller {
     private void submitButtonClicked_editVerbindung(UUID uuid) {
         System.out.println("[AKTION] Edit Verbindung - Submit Button Clicked");
         try {
-            Verbindung old_verbindung = DefaultGUIController.modelContainer.getVerbindungByUUID(uuid);
+            Verbindung old_verbindung = DefaultPage_Controller.modelContainer.getVerbindungByUUID(uuid);
             Verbindung new_verbindung = getInserts();
             new_verbindung.setUuid(uuid);
 
-            Ordner old_ordner = DefaultGUIController.modelContainer.getOrdnerByVerbindung(old_verbindung);
+            Ordner old_ordner = DefaultPage_Controller.modelContainer.getOrdnerByVerbindung(old_verbindung);
             int selected_index = ordner.getSelectionModel().getSelectedIndex();
             Ordner new_ordner = new Ordner();
-            Ordner selected_ordner = DefaultGUIController.modelContainer.getOrdnerList().get(selected_index);
+            Ordner selected_ordner = DefaultPage_Controller.modelContainer.getOrdnerList().get(selected_index);
             if(!selected_ordner.getBezeichnung().equals(ordner.getValue())) {
                 new_ordner.setBezeichnung(ordner.getValue());
                 new_ordner.setUuid(UUID.randomUUID());
-                DefaultGUIController.modelContainer.addOrdner(new_ordner);
+                DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
 
                 old_ordner.deleteVerbindungByUUID(old_verbindung.getUuid());
                 new_ordner.addVerbindung(new_verbindung);
             } else {
                 if(selected_ordner.equals(old_ordner)) {
-                    DefaultGUIController.modelContainer.editVerbindung(old_verbindung, new_verbindung);
+                    DefaultPage_Controller.modelContainer.editVerbindung(old_verbindung, new_verbindung);
                 } else {
                     old_ordner.deleteVerbindungByUUID(old_verbindung.getUuid());
                     selected_ordner.addVerbindung(new_verbindung);
                 }
             }
-            DefaultGUIController.modelContainer.safeOrdner();
-            DefaultGUIController.modelContainer.getVerbindungByUUID(uuid).print();
+            DefaultPage_Controller.modelContainer.safeOrdner();
+            DefaultPage_Controller.modelContainer.getVerbindungByUUID(uuid).print();
 
-            DefaultGUIController.rebuildGUI();
+            DefaultPage_Controller.rebuildGUI();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -203,10 +205,11 @@ public class NewVerbindungPage_Controller {
         if(verbindung.isSafePasswort()) {
             verbindung.setPasswort(passwort.getText());
         } else {
-            verbindung.setPasswort(null);
+            verbindung.setPasswort("");
         }
         verbindung.setKeyfile(keyfile.getText());
         verbindung.setLogpath(logpath.getText());
+        verbindung.setPrecommand(precommand.getText());
         if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
             verbindung.setBetriebssystem("");
         } else {
@@ -223,10 +226,10 @@ public class NewVerbindungPage_Controller {
         System.out.println("[AKTION] Cancel Button Clicked");
         if(Dialogs.confirmDialog("Wollen Sie die Aktion wirklich abbrechen?\n" +
                 "Hinweis: alle eingetragenen Daten gehen verloren!")) {
-            DefaultGUIController.sessionContainer.safeLogs();
+            DefaultPage_Controller.sessionContainer.safeLogs();
             AnchorPane parent = (AnchorPane) newVerbindungPage.getParent();
             int index = parent.getChildren().indexOf(newVerbindungPage);
-            parent.getChildren().set(index, FXMLLoader.load(getClass().getResource(DefaultGUIController.sessionContainer.getPageURL())));
+            parent.getChildren().set(index, FXMLLoader.load(getClass().getResource(DefaultPage_Controller.sessionContainer.getPageURL())));
 
             if(parent.getChildren().get(index).getClass().equals(GridPane.class)) {
                 ((GridPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
@@ -235,7 +238,7 @@ public class NewVerbindungPage_Controller {
                 ((AnchorPane) parent.getChildren().get(index)).prefWidthProperty().bind(parent.widthProperty());
                 ((AnchorPane) parent.getChildren().get(index)).prefHeightProperty().bind(parent.heightProperty());
             }
-            DefaultGUIController.sessionContainer.rebuildLogs();
+            DefaultPage_Controller.sessionContainer.rebuildLogs();
         }
     }
 
@@ -243,12 +246,18 @@ public class NewVerbindungPage_Controller {
      * Öffnet ein Windows Explorer zum auswählen einer Datei, wenn in das Textfeld vom keyfile geklickt wird
      */
     public void openFileChooser(MouseEvent mouseEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Keyfile auswählen");
-        File file = fileChooser.showOpenDialog(new Stage());
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Keyfile auswählen");
+        fileChooser.setFileHidingEnabled(false);
+
+        int returnVal = fileChooser.showOpenDialog(null);
+        File file = null;
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            file = fileChooser.getSelectedFile().getAbsoluteFile();
+        }
 
         if(file != null) {
-            keyfile.setText(file.toString());
+            keyfile.setText(file.getAbsolutePath());
         }
     }
 }
