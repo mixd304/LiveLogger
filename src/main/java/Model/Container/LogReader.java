@@ -16,6 +16,7 @@ public class LogReader {
     private Thread thread;
     private String output;
     private String passwort;
+    private int zeilen = 500;
 
     /**
      * Konstruktor
@@ -33,6 +34,33 @@ public class LogReader {
     }
 
     /**
+     * wird aufgerufen, wenn ein neues Log ausgelesen werden soll
+     * Prüft die Verbindung auf das Betriebssystem und ruft die entsprechende Methode auf bzw.
+     * gibt einen Fehler aus
+     * @param verbindung zu herstellende Verbindung
+     */
+    public void startReading(Verbindung verbindung) {
+        if(!verbindung.isSafePasswort()) {
+            this.passwort = DefaultPage_Controller.passwörter.get(verbindung);
+        } else {
+            this.passwort = verbindung.getPasswort();
+        }
+
+        if(verbindung.getBetriebssystem().equals("Linux")) {
+            readLinux(verbindung);
+        } else if(verbindung.getBetriebssystem().equals("Windows")) {
+            readWindows(verbindung);
+        } else {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    listView.getItems().add("Ausgewähltes Betriebssystem wird (noch) nicht unterstützt!");
+                }
+            });
+        }
+    }
+
+    /**
      * Öffnet einen neuen Thread, welcher parallel zum JavaFX-Thread läuft
      * Stellt eine Verbindung zu einem Linux-Server her
      * Liest sein Logfile zeilenweise in Echtzeit aus und liefert diese Zeilen an die Oberfläche
@@ -45,26 +73,7 @@ public class LogReader {
             public void run() {
                 thread = Thread.currentThread();
                 running = true;
-                /*try {
-                    File file = new File(pfad);
-                    RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
-                    long len = randomAccessFile.length();
-                    for(int i = 0; i < len; i++) {
-                        System.out.print((char) randomAccessFile.readByte());
-                    }
-                    while(true) {
-                        long len_neu = randomAccessFile.length();
-                        if(len_neu > len) {
-                            for(int i = 0; i < len_neu - len; i++) {
-                                System.out.print((char) randomAccessFile.readByte());
-                            }
-                        }
-                        len = len_neu;
-                        Thread.sleep(1000);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
+
                 while (!thread.isInterrupted()) {
                     writeLine(output);
                     try {
@@ -91,8 +100,9 @@ public class LogReader {
                 thread = Thread.currentThread();
                 running = true;
                 try {
-                    //String command = "tail -f -n 200 " + verbindung.getLogpath();
-                    String command = verbindung.getLogpath();
+                    // tail -f -n 500 /opt/as/tomcat/base/logs/catalina.out
+                    // sudo -u tomcat tail -f -n 500 /opt/as/tomcat/base/logs/catalina.out
+                    String command = verbindung.getPrecommand() + " tail -f -n " + zeilen + " " + verbindung.getLogpath();
 
                     JSch jsch = new JSch();
                     Session session;
@@ -107,7 +117,6 @@ public class LogReader {
                         session.setConfig(config);
                         session.connect();
 
-                        // sudo -u tomcat tail -f -n 500 /opt/as/tomcat/base/logs/catalina.out
                         channel = session.openChannel("exec");
                         ((ChannelExec) channel).setCommand(command);
                     } else {
@@ -138,10 +147,7 @@ public class LogReader {
                         if(bufferedReader.readLine() == null){
                             printError("Logpfad ungültig");
                         } else {
-                            System.out.println("Ausgabenstart");
-                            System.out.println("THREAD Interrupted = " + thread.isInterrupted());
                             while (((line = bufferedReader.readLine()) != null) && !thread.isInterrupted()) {
-                                System.out.println("Line = " + line);
                                 writeLine(line);
                                 try {
                                     Thread.sleep(5);
@@ -190,7 +196,21 @@ public class LogReader {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                /*listView.setCellFactory(param -> new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (empty || item == null) {
+                            setText(null);
+                        } else {
+                            setStyle("-fx-text-inner-color: red;");
+                            setText(item);
+                        }
+                    }
+                });*/
                 listView.getItems().add(line);
+                listView.scrollTo(listView.getItems().size() - 1);
             }
         });
     }
@@ -208,26 +228,5 @@ public class LogReader {
     }
     public void setOutput(String output) {
         this.output = output;
-    }
-
-    public void startReading(Verbindung verbindung) {
-        if(!verbindung.isSafePasswort()) {
-            this.passwort = DefaultPage_Controller.passwörter.get(verbindung);
-        } else {
-            this.passwort = verbindung.getPasswort();
-        }
-
-        if(verbindung.getBetriebssystem().equals("Linux")) {
-            readLinux(verbindung);
-        } else if(verbindung.getBetriebssystem().equals("Windows")) {
-            readWindows(verbindung);
-        } else {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    listView.getItems().add("Ausgewähltes Betriebssystem wird (noch) nicht unterstützt!");
-                }
-            });
-        }
     }
 }

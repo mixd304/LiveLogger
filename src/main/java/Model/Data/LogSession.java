@@ -50,7 +50,6 @@ public class LogSession {
     public void setLogReader(LogReader logReader) {
         this.logReader = logReader;
     }
-
     public void print() {
         System.out.println("LogSession{" +
                 "label=" + label +
@@ -61,12 +60,4 @@ public class LogSession {
                 '}');
     }
 
-    public void writeLine(String line) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                listView.getItems().add(line);
-            }
-        });
-    }
 }
