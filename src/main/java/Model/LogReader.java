@@ -67,7 +67,7 @@ public class LogReader {
      * @param verbindung herzustellende Verbindung
      * @see #writeLine(String)
      */
-    public void readWindows(Verbindung verbindung) {
+    private void readWindows(Verbindung verbindung) {
         StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -93,7 +93,7 @@ public class LogReader {
      * @param verbindung herzustellende Verbindung
      * @see #writeLine(String)
      */
-    public void readLinux(Verbindung verbindung) {
+    private void readLinux(Verbindung verbindung) {
         StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {

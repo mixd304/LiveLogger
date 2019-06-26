@@ -436,6 +436,7 @@ public class DefaultPage_Controller {
     public void menue_newButtonClicked_Verbindung(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/View/SecondPane/newVerbindungPage.fxml"));
+        ((ChoiceBox<String>) newLoadedPane.getChildren().get(6)).getSelectionModel().select("Linux");
         secondPane.getChildren().set(0, newLoadedPane);
         ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
         ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());

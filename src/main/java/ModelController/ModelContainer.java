@@ -42,7 +42,6 @@ public class ModelContainer {
         for (Ordner ordner: ordnerList) {
             if(ordner.getUuid().equals(uuid)) {
                 ordnerList.remove(ordner);
-
                 System.out.println("[INFO]   Der Ordner mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
                 safeOrdner();
                 return new ResultBoolean(true, "Ordner gelöscht!");
@@ -57,16 +56,19 @@ public class ModelContainer {
     /**
      *
      */
-    public void deleteVerbindungByUUID(UUID uuid) {
+    public ResultBoolean deleteVerbindungByUUID(UUID uuid) {
         for (Ordner ordner: this.ordnerList) {
             for (Verbindung verbindung: ordner.getList()) {
                 if(verbindung.getUuid().equals(uuid)) {
                     ordner.deleteVerbindungByUUID(uuid);
-                    break;
+                    System.out.println("[INFO]   Die Verbindung mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
+                    return new ResultBoolean(true, "Verbindung gelöscht!");
                 }
             }
         }
+        System.out.println("[FEHLER] Die Verbindung mit der UUID " + uuid + " konnte nicht gelöscht werden!");
         safeOrdner();
+        return new ResultBoolean(false, "Fehler beim Löschen der Verbindung!");
     }
 
     /**

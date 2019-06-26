@@ -77,7 +77,7 @@ public class LogFilePage_Controller {
             }
         });
 
-        // TODO: Kontextmenü erweitern - CheckBox (Verbindungen)
+        // TODO: Kontextmenü erweitern - ListView
 
         // Alle MenuItems zum ContextMenu hinzufügen
         contextMenu.getItems().add(menuItem_open);

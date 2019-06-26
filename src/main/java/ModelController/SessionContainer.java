@@ -49,42 +49,48 @@ public class SessionContainer {
      * @see #reset_log(int)
      * @see #buildListViews()
      */
-    public void closeVerbindung(Verbindung verbindung) {
-        LogSession logSession = getLogSessionByID(verbindung.getUuid().toString());
-        if(logSession != null) {
-            int pos = this.logSessionList.indexOf(logSession);
-            if(logSession.getLogReader() != null) {
-                logSession.getLogReader().stop();
-            }
-            logSessionList.remove(logSession);
+    public boolean closeVerbindung(Verbindung verbindung) {
+        try {
+            LogSession logSession = getLogSessionByID(verbindung.getUuid().toString());
+            if(logSession != null) {
+                int pos = this.logSessionList.indexOf(logSession);
+                if(logSession.getLogReader() != null) {
+                    logSession.getLogReader().stop();
+                }
+                logSessionList.remove(logSession);
 
-            // Wenn die 1. Stelle gelöscht wurde
-            if(pos == 0) {
-                // und die neue Anzahl >= 1 ist
-                if(logSessionList.size() >= 1) {
-                    reset_log(0);
-                } if(logSessionList.size() >= 2) {
-                    reset_log(1);
-                } if(logSessionList.size() >= 3) {
-                    reset_log(2);
+                // Wenn die 1. Stelle gelöscht wurde
+                if(pos == 0) {
+                    // und die neue Anzahl >= 1 ist
+                    if(logSessionList.size() >= 1) {
+                        reset_log(0);
+                    } if(logSessionList.size() >= 2) {
+                        reset_log(1);
+                    } if(logSessionList.size() >= 3) {
+                        reset_log(2);
+                    }
+                    // Wenn die 2. Stelle gelöscht wurde
+                } else if(pos == 1) {
+                    if(logSessionList.size() >= 2) {
+                        reset_log(1);
+                    } if(logSessionList.size() >= 3) {
+                        reset_log(2);
+                    }
+                    // Wenn die 3. Stelle gelöscht wurde
+                } else if(pos == 2) {
+                    if(logSessionList.size() >= 3) {
+                        reset_log(2);
+                    }
                 }
-                // Wenn die 2. Stelle gelöscht wurde
-            } else if(pos == 1) {
-                if(logSessionList.size() >= 2) {
-                    reset_log(1);
-                } if(logSessionList.size() >= 3) {
-                    reset_log(2);
-                }
-                // Wenn die 3. Stelle gelöscht wurde
-            } else if(pos == 2) {
-                if(logSessionList.size() >= 3) {
-                    reset_log(2);
-                }
+                listviewList.get(logSessionList.size()).getItems().clear();
+                labelList.get(logSessionList.size()).setText("");
+                buildListViews();
+                return true;
             }
-            listviewList.get(logSessionList.size()).getItems().clear();
-            labelList.get(logSessionList.size()).setText("");
-            buildListViews();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     /**
@@ -92,12 +98,18 @@ public class SessionContainer {
      * Mithilfe dieser Methode wird die Stelle "number_of_log" zurückgesetzt
      * @param number_of_log Stelle der zurückzusetzenden Ausgabe
      */
-    private void reset_log(int number_of_log) {
-        logSessionList.get(number_of_log).getLogReader().setListView(listviewList.get(number_of_log));
-        listviewList.get(number_of_log).getItems().setAll(logSessionList.get(number_of_log).getListView().getItems());
-        logSessionList.get(number_of_log).setListView(listviewList.get(number_of_log));
-        labelList.get(number_of_log).setText(logSessionList.get(number_of_log).getLabel().getText());
-        logSessionList.get(number_of_log).setLabel(labelList.get(number_of_log));
+    private boolean reset_log(int number_of_log) {
+        try {
+            logSessionList.get(number_of_log).getLogReader().setListView(listviewList.get(number_of_log));
+            listviewList.get(number_of_log).getItems().setAll(logSessionList.get(number_of_log).getListView().getItems());
+            logSessionList.get(number_of_log).setListView(listviewList.get(number_of_log));
+            labelList.get(number_of_log).setText(logSessionList.get(number_of_log).getLabel().getText());
+            logSessionList.get(number_of_log).setLabel(labelList.get(number_of_log));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -131,40 +143,45 @@ public class SessionContainer {
      * Setzt in der LogSession die entsprechend zugehörigen FXML-Oberflächenteile
      * Baut einen neuen LogReader
      * @param verbindung herzustellende Verbindungen
-     * @see LogReader#readLinux(Verbindung)
-     * @see LogReader#readWindows(Verbindung)
+     * @see LogReader#startReading(Verbindung)
      * @see #buildListViews()
      */
-    public void createNewLogSession(Verbindung verbindung) {
-        int pos = this.logSessionList.size();
+    public boolean createNewLogSession(Verbindung verbindung) {
+        try {
+            int pos = this.logSessionList.size();
 
-        LogSession logSession = new LogSession();
-        logSession.setId(verbindung.getUuid().toString());
-        logSession.setVerbindung(verbindung);
-        if (pos == 0) {
-            logSession.setLabel(labelList.get(0));
-            logSession.setListView(listviewList.get(0));
-        } else if (pos == 1) {
-            logSession.setLabel(labelList.get(1));
-            logSession.setListView(listviewList.get(1));
-        } else if (pos == 2) {
-            logSession.setLabel(labelList.get(2));
-            logSession.setListView(listviewList.get(2));
-        } else if (pos == 3) {
-            logSession.setLabel(labelList.get(3));
-            logSession.setListView(listviewList.get(3));
+            LogSession logSession = new LogSession();
+            logSession.setId(verbindung.getUuid().toString());
+            logSession.setVerbindung(verbindung);
+            if (pos == 0) {
+                logSession.setLabel(labelList.get(0));
+                logSession.setListView(listviewList.get(0));
+            } else if (pos == 1) {
+                logSession.setLabel(labelList.get(1));
+                logSession.setListView(listviewList.get(1));
+            } else if (pos == 2) {
+                logSession.setLabel(labelList.get(2));
+                logSession.setListView(listviewList.get(2));
+            } else if (pos == 3) {
+                logSession.setLabel(labelList.get(3));
+                logSession.setListView(listviewList.get(3));
+            }
+            logSession.getLabel().setText("  " + verbindung.getBezeichnung());
+            logSession.getListView().getItems().add("Versuche Verbindung herzustellen...");
+
+            LogReader logReader = new LogReader(logSession.getListView());
+            // nur für Testzwecke bei Windows Servern benötigt
+            logReader.setOutput(verbindung.getBezeichnung());
+            logReader.startReading(verbindung);
+
+            logSession.setLogReader(logReader);
+            this.logSessionList.add(logSession);
+            buildListViews();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        logSession.getLabel().setText("  " + verbindung.getBezeichnung());
-        logSession.getListView().getItems().add("Versuche Verbindung herzustellen...");
-
-        LogReader logReader = new LogReader(logSession.getListView());
-        // nur für Testzwecke bei Windows Servern benötigt
-        logReader.setOutput(verbindung.getBezeichnung());
-        logReader.startReading(verbindung);
-
-        logSession.setLogReader(logReader);
-        this.logSessionList.add(logSession);
-        buildListViews();
+        return false;
     }
 
     /**
