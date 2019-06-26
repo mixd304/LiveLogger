@@ -71,7 +71,7 @@
                             <!-- Jar file entry point -->
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>ProgrammStart.StartProgramm</mainClass>
+                            <mainClass>Default.StartProgramm</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -81,7 +81,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ProgrammStart.StartProgramm</mainClass>
+                            <mainClass>Default.StartProgramm</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

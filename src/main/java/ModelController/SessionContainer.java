@@ -1,5 +1,6 @@
-package Model.Container;
+package ModelController;
 
+import Model.LogReader;
 import Model.Data.Verbindung;
 import Model.Data.LogSession;
 import javafx.collections.ObservableList;
@@ -19,8 +20,8 @@ public class SessionContainer {
     private GridPane logFilePage;
     // logSessionList = Alle aktuell aktiven LogSessions
     private ArrayList<LogSession> logSessionList = new ArrayList<>();
-    private String url_defaultSecondPage = "/SecondPane/homepage.fxml";
-    private String url_logFilePage = "/SecondPane/logFilePage.fxml";
+    private String url_defaultSecondPage = "/View/SecondPane/homepage.fxml";
+    private String url_logFilePage = "/View/SecondPane/logFilePage.fxml";
     // ausgaben = Liste zum Speichern von ListViews, wenn die GUI neu gebaut werden muss
     private ArrayList<ObservableList<String>> ausgaben = new ArrayList<>();
 

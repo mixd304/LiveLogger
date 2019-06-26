@@ -1,10 +1,12 @@
-package Controller;
+package ViewController;
 
-import Model.Container.ModelContainer;
-import Model.Container.SessionContainer;
+import Default.StartProgramm;
+import View.Dialogs;
+import ViewController.SecondPaneController.NewVerbindungPage_Controller;
+import ModelController.ModelContainer;
+import ModelController.SessionContainer;
 import Model.Data.Ordner;
 import Model.Data.Verbindung;
-import ProgrammStart.StartProgramm;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,7 +17,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import javax.xml.soap.Text;
 import java.io.*;
 import java.util.*;
 
@@ -292,7 +293,7 @@ public class DefaultPage_Controller {
      */
     private void editVerbindung(UUID uuid) {
         try {
-            Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
+            Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/View/SecondPane/newVerbindungPage.fxml"));
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
             ObservableList<Node> felder = newLoadedPane.getChildren();
 
@@ -319,7 +320,7 @@ public class DefaultPage_Controller {
      */
     private void copyVerbindung(UUID uuid) {
         try {
-            Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
+            Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/View/SecondPane/newVerbindungPage.fxml"));
             Verbindung verbindung = modelContainer.getVerbindungByUUID(uuid);
             ObservableList<Node> felder = newLoadedPane.getChildren();
 
@@ -430,11 +431,11 @@ public class DefaultPage_Controller {
     /**
      * wird aufgerufen, wenn im Menü-Reiter auf "Neu -> Verbindung" geklickt wird
      * ruft ein neues FXML Fenster auf
-     * @see Controller.SecondPaneController.NewVerbindungPage_Controller
+     * @see NewVerbindungPage_Controller
      */
     public void menue_newButtonClicked_Verbindung(ActionEvent actionEvent) throws IOException {
         System.out.println("[ACTION] NewButtonVerbindung Clicked!");
-        Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/SecondPane/newVerbindungPage.fxml"));
+        Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/View/SecondPane/newVerbindungPage.fxml"));
         secondPane.getChildren().set(0, newLoadedPane);
         ((GridPane) secondPane.getChildren().get(0)).prefWidthProperty().bind(secondPane.widthProperty());
         ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());

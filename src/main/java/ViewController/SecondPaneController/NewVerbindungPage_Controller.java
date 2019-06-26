@@ -1,7 +1,7 @@
-package Controller.SecondPaneController;
+package ViewController.SecondPaneController;
 
-import Controller.Dialogs;
-import Controller.DefaultPage_Controller;
+import View.Dialogs;
+import ViewController.DefaultPage_Controller;
 import Model.Data.Ordner;
 import Model.Data.Verbindung;
 import javafx.event.ActionEvent;
@@ -12,8 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import javax.swing.*;
 import java.io.File;

@@ -1,8 +1,8 @@
-package Model.Container;
+package Model;
 
-import Controller.DefaultPage_Controller;
+import Default.StartProgramm;
+import ViewController.DefaultPage_Controller;
 import Model.Data.Verbindung;
-import ProgrammStart.StartProgramm;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
 import javafx.scene.control.ListView;

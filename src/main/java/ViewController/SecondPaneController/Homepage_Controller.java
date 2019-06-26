@@ -1,4 +1,4 @@
-package Controller.SecondPaneController;
+package ViewController.SecondPaneController;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;

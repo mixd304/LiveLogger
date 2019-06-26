@@ -1,7 +1,6 @@
 package Model.Data;
 
-import Model.Container.LogReader;
-import javafx.application.Platform;
+import Model.LogReader;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
@@ -15,7 +14,6 @@ public class LogSession {
 
     public LogSession() {
     }
-
     public LogSession(Label label, ListView<String> listView) {
         this.label = label;
         this.listView = listView;

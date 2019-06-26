@@ -1,7 +1,7 @@
-package Model.Container;
+package ModelController;
 
 import Model.Data.Ordner;
-import Model.Data.ResultBoolean;
+import Default.ResultBoolean;
 import Model.Data.Verbindung;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;

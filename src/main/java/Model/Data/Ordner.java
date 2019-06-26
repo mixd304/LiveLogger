@@ -1,5 +1,7 @@
 package Model.Data;
 
+import Default.ResultBoolean;
+
 import java.util.ArrayList;
 import java.util.UUID;
 

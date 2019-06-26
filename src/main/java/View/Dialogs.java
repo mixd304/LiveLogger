@@ -1,6 +1,5 @@
-package Controller;
+package View;
 
-import Model.Data.ResultBoolean;
 import Model.Data.Verbindung;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

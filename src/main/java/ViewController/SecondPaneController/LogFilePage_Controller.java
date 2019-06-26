@@ -1,7 +1,6 @@
-package Controller.SecondPaneController;
+package ViewController.SecondPaneController;
 
-import Controller.DefaultPage_Controller;
-import Controller.Dialogs;
+import ViewController.DefaultPage_Controller;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,7 +14,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class LogFilePage_Controller {
     @FXML Label log_1_label;

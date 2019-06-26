@@ -1,4 +1,4 @@
-package ProgrammStart;
+package Default;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -35,7 +35,7 @@ public class StartProgramm extends Application {
 
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(StartProgramm.class.getResource("/defaultPage.fxml"));
+        loader.setLocation(StartProgramm.class.getResource("/View/defaultPage.fxml"));
         Parent root = loader.load();
 
         if(stage == null){

@@ -1,4 +1,4 @@
-package Model.Data;
+package Default;
 
 public class ResultBoolean {
     private boolean erfolgreich;

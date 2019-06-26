@@ -1,4 +1,4 @@
-import Model.Container.ModelContainer;
+import ModelController.ModelContainer;
 import Model.Data.Ordner;
 import Model.Data.Verbindung;
 
