@@ -3,21 +3,25 @@ package ModelController;
 import Model.Data.Ordner;
 import Default.ResultBoolean;
 import Model.Data.Verbindung;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class ModelContainer {
     private String speicherort = "ordner.json";
     private ArrayList<Ordner> ordnerList = new ArrayList<>();
+    private String keyStr = "gDePtWkw1RAShgF1dLKLi5wS2RVNd2as";
 
     /**
      *
@@ -165,10 +169,35 @@ public class ModelContainer {
     public boolean safeOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // Java objects to JSON file
+            for (Ordner ordner: this.ordnerList) {
+                for (Verbindung verbindung:ordner.getList()) {
+                    if(verbindung.isSafePasswort()) {
+                        // byte-Array erzeugen
+                        byte[] key = (keyStr).getBytes("UTF-8");
+                        // aus dem Array einen Hash-Wert erzeugen mit MD5 oder SHA
+                        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+                        key = sha.digest(key);
+                        // nur die ersten 128 bit nutzen
+                        key = Arrays.copyOf(key, 16);
+                        // der fertige Schluessel
+                        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+
+                        Cipher cipher = Cipher.getInstance("AES");
+                        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+                        byte[] encrypted = cipher.doFinal(verbindung.getPasswort().getBytes());
+                        BASE64Encoder myEncoder = new BASE64Encoder();
+                        verbindung.setPasswort(myEncoder.encode(encrypted));
+
+                    } else {
+                        verbindung.setPasswort("");
+                    }
+                }
+            }
+
             mapper.writeValue(new File(this.speicherort), this.ordnerList);
             System.out.println("[INFO]   Liste mit Ordnern erfolgreich gespeichert!");
 
+            loadOrdner();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -183,24 +212,39 @@ public class ModelContainer {
     public boolean loadOrdner() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // JSON file to Java Objec
             this.ordnerList = mapper.readValue(new File(this.speicherort),  new TypeReference<List<Ordner>>() {});
             System.out.println("[INFO]   Liste mit Ordnern erfolgreich geladen!");
+            for (Ordner ordner: this.ordnerList) {
+                for (Verbindung verbindung:ordner.getList()) {
+                    if(verbindung.isSafePasswort()) {
+                        // byte-Array erzeugen
+                        byte[] key = keyStr.getBytes("UTF-8");
+                        // aus dem Array einen Hash-Wert erzeugen mit MD5 oder SH
+                        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+                        key = sha.digest(key);
+                        // nur die ersten 128 bit nutzen
+                        key = Arrays.copyOf(key, 16);
+                        // der fertige Schluessel
+                        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 
-            // Ausgabe der eingelesenen Daten
-            /*String ausgabe = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.ordnerList);
-            System.out.println(ausgabe);*/
+                        // BASE64 String zu Byte-Array konvertieren
+                        BASE64Decoder myDecoder = new BASE64Decoder();
+                        byte[] crypted = myDecoder.decodeBuffer(verbindung.getPasswort());
 
+                        // Entschluesseln
+                        Cipher cipher = Cipher.getInstance("AES");
+                        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+                        byte[] cipherData = cipher.doFinal(crypted);
+                        verbindung.setPasswort(new String(cipherData));
+                    } else {
+                        verbindung.setPasswort("");
+                    }
+                }
+            }
             return true;
         } catch (FileNotFoundException e) {
             System.out.println("[INFO]   Liste mit Ordnern existiert nicht!");
-        } catch (JsonParseException e) {
-            System.out.println("[Fehler] beim Laden der Liste mit Ordnern!");
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            System.out.println("[Fehler] beim Laden der Liste mit Ordnern!");
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("[Fehler] beim Laden der Liste mit Ordnern!");
             e.printStackTrace();
         }
