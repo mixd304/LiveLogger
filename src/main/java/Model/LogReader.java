@@ -5,6 +5,7 @@ import ViewController.DefaultPage_Controller;
 import Model.Data.Verbindung;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
 import java.io.*;
@@ -196,20 +197,10 @@ public class LogReader {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                /*listView.setCellFactory(param -> new ListCell<String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (empty || item == null) {
-                            setText(null);
-                        } else {
-                            setStyle("-fx-text-inner-color: red;");
-                            setText(item);
-                        }
-                    }
-                });*/
                 listView.getItems().add(line);
+                if(line.contains("ERROR")) {
+
+                }
                 listView.scrollTo(listView.getItems().size() - 1);
             }
         });

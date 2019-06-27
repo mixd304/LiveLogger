@@ -6,6 +6,9 @@ import Model.Data.LogSession;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.util.Callback;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -168,6 +171,32 @@ public class SessionContainer {
             }
             logSession.getLabel().setText("  " + verbindung.getBezeichnung());
             logSession.getListView().getItems().add("Versuche Verbindung herzustellen...");
+            // TODO COLOR IN LISTVIEW
+            logSession.getListView().setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+                @Override
+                public ListCell<String> call(ListView<String> param) {
+                    return new ListCell<String>() {
+                        @Override
+                        protected void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+
+                            if (item == null || empty) {
+                                setText(null);
+                                setStyle("-fx-control-inner-background: white;");
+                            } else {
+                                setText(item);
+                                if (item.contains("ERROR")) {
+                                    setStyle("-fx-control-inner-background: red;");
+                                } else if (item.contains("WARNING")) {
+                                    setStyle("-fx-control-inner-background: orange;");
+                                } else {
+                                    setStyle("-fx-control-inner-background: white;");
+                                }
+                            }
+                        }
+                    };
+                }
+            });
 
             LogReader logReader = new LogReader(logSession.getListView());
             // nur für Testzwecke bei Windows Servern benötigt
