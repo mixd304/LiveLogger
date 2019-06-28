@@ -91,25 +91,9 @@ public class NewVerbindungPage_Controller {
         try {
             // Prüfung des Ordners
             int selected_index = ordner.getSelectionModel().getSelectedIndex();
-            Ordner new_ordner = new Ordner();
-            if(selected_index == -1) {
-                if(ordner.getValue() == null) {
-                    Dialogs.confirmDialog("Bitte wählen Sie einen Ordner aus oder legen einen neuen an!");
-                    return false;
-                } else {
-                    new_ordner.setBezeichnung(ordner.getValue());
-                    new_ordner.setUuid(UUID.randomUUID());
-                    DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
-                }
-            } else {
-                Ordner ordnerByIndex = DefaultPage_Controller.modelContainer.getOrdnerList().get(selected_index);
-                if(!ordnerByIndex.getBezeichnung().equals(ordner.getValue())) {
-                    new_ordner.setBezeichnung(ordner.getValue());
-                    new_ordner.setUuid(UUID.randomUUID());
-                    DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
-                } else {
-                    new_ordner = ordnerByIndex;
-                }
+            if(selected_index == -1 && ordner.getValue() == null) {
+                Dialogs.confirmDialog("Bitte wählen Sie einen Ordner aus oder legen einen neuen an!");
+                return false;
             }
 
             // Prüfung der Bezeichnung
@@ -127,11 +111,22 @@ public class NewVerbindungPage_Controller {
                     return false;
                 }
             }
-            // Prüfung des Betriebssystem
-            /*if(betriebssystem.getSelectionModel().getSelectedIndex() == -1) {
-                Dialogs.confirmDialog("Bitte wählen Sie ein Betriebssystem aus!");
-                return false;
-            }*/
+
+            Ordner new_ordner = new Ordner();
+            if(selected_index == -1) {
+                new_ordner.setBezeichnung(ordner.getValue());
+                new_ordner.setUuid(UUID.randomUUID());
+                DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
+            } else {
+                Ordner ordnerByIndex = DefaultPage_Controller.modelContainer.getOrdnerList().get(selected_index);
+                if(!ordnerByIndex.getBezeichnung().equals(ordner.getValue())) {
+                    new_ordner.setBezeichnung(ordner.getValue());
+                    new_ordner.setUuid(UUID.randomUUID());
+                    DefaultPage_Controller.modelContainer.addOrdner(new_ordner);
+                } else {
+                    new_ordner = ordnerByIndex;
+                }
+            }
 
             Verbindung new_verbindung = getInserts();
 

@@ -171,7 +171,6 @@ public class SessionContainer {
             }
             logSession.getLabel().setText("  " + verbindung.getBezeichnung());
             logSession.getListView().getItems().add("Versuche Verbindung herzustellen...");
-            // TODO COLOR IN LISTVIEW
             logSession.getListView().setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
                 @Override
                 public ListCell<String> call(ListView<String> param) {

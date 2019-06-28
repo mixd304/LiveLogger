@@ -302,7 +302,7 @@ public class DefaultPage_Controller {
             fillNewVerbindungPage(felder, verbindung);
 
             // Ändern der ID des Submit Buttons, damit erkannt werden kann, ob Update oder Neu
-            ((Button) felder.get(7)).setText("Bearbeiten");
+            ((Button) felder.get(7)).setText("Übernehmen");
             ((Button) felder.get(7)).setId("editVerbindungButton");
 
             secondPane.getChildren().set(0, newLoadedPane);
@@ -375,7 +375,7 @@ public class DefaultPage_Controller {
                 new_ordner.setBezeichnung(ordnerData[0]);
                 new_ordner.setUuid(UUID.randomUUID());
                 modelContainer.addOrdner(new_ordner);
-
+                modelContainer.safeOrdner();
                 rebuildGUI();
                 break;
             }

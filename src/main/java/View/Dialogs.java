@@ -1,9 +1,9 @@
 package View;
 
 import Model.Data.Verbindung;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 
 import java.util.Optional;
 
@@ -47,12 +47,32 @@ public class Dialogs {
      * @return passwort
      */
     public static String getPasswortDialog(Verbindung verbindung) {
-        TextInputDialog inputDialog = new TextInputDialog();
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Passwortabfrage");
+        dialog.setHeaderText("Bitte tragen Sie das Passwort für die Verbindung '" + verbindung.getBezeichnung() + "' ein");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        PasswordField passwordField = new PasswordField();
+        HBox content = new HBox();
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setSpacing(10);
+        content.getChildren().addAll(new Label("Passwort eintragen"), passwordField);
+        dialog.getDialogPane().setContent(content);
+        dialog.setResultConverter(dialogButton -> {
+            if(dialogButton == ButtonType.OK) {
+                return passwordField.getText();
+            }
+            return null;
+        });
+
+
+
+        /*TextInputDialog inputDialog = new TextInputDialog();
         inputDialog.setTitle("Passwort eintragen");
         inputDialog.setHeaderText("Bitte tragen Sie das Passwort für die Verbindung '" + verbindung.getBezeichnung() + "' ein");
-        inputDialog.setContentText("Passwort: ");
+        inputDialog.setContentText("Passwort: ");*/
 
-        Optional<String> result = inputDialog.showAndWait();
+        Optional<String> result = dialog.showAndWait();
         if(result.isPresent()) {
             System.out.println("RESULT = " + result.get());
             return result.get();

@@ -29,7 +29,6 @@ public class ModelContainer {
     public ResultBoolean addOrdner(Ordner ordner) {
         try {
             this.ordnerList.add(ordner);
-            safeOrdner();
             System.out.println("[INFO]   Neuer Ordner erfolgreich erstellt!");
             return new ResultBoolean(true, "Neuer Ordner angelegt!");
         } catch (Exception e) {
