@@ -5,6 +5,7 @@ import ViewController.DefaultPage_Controller;
 import Model.Data.Verbindung;
 import com.jcraft.jsch.*;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
@@ -12,6 +13,7 @@ import java.io.*;
 import java.util.Properties;
 
 public class LogReader {
+    private Label label;
     private ListView<String> listView;
     private boolean running;
     private Thread thread;
@@ -30,8 +32,9 @@ public class LogReader {
      * Konstruktor
      * @param listView Verweis auf das zu beschreibende ListView (Textfeld) der Oberfläche
      */
-    public LogReader(ListView<String> listView) {
+    public LogReader(ListView<String> listView, Label label) {
         this.listView = listView;
+        this.label = label;
     }
 
     /**
@@ -41,6 +44,7 @@ public class LogReader {
      * @param verbindung zu herstellende Verbindung
      */
     public void startReading(Verbindung verbindung) {
+        System.out.println("[INFO] - {LogReader} StartReading");
         if(!verbindung.isSafePasswort()) {
             this.passwort = DefaultPage_Controller.passwörter.get(verbindung);
         } else {
@@ -69,6 +73,7 @@ public class LogReader {
      * @see #writeLine(String)
      */
     private void readWindows(Verbindung verbindung) {
+        System.out.println("[INFO] - {LogReader} readWindows");
         StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -95,6 +100,7 @@ public class LogReader {
      * @see #writeLine(String)
      */
     private void readLinux(Verbindung verbindung) {
+        System.out.println("[INFO] - {LogReader} readLinux");
         StartProgramm.executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -178,6 +184,7 @@ public class LogReader {
      * @param fehler Fehlerhinweise, z.B. falscher Port oder falsches Passwort
      */
     private void printError(String fehler) {
+        System.out.println("[WARNING] - {LogReader} Fehler bei der Verbindungsherstellung");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -197,10 +204,10 @@ public class LogReader {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                listView.getItems().add(line);
-                if(line.contains("ERROR")) {
-
+                if(DefaultPage_Controller.recording) {
+                    DefaultPage_Controller.printWriter.println("[ " + label.getText().trim() + " ] - " + line);
                 }
+                listView.getItems().add(line);
                 listView.scrollTo(listView.getItems().size() - 1);
             }
         });
@@ -210,6 +217,7 @@ public class LogReader {
      * Stoppt den Thread und somit die Verbindung zum Server und das Auslesen des Logfiles
      */
     public void stop() {
+        System.out.println("[INFO] - {LogReader} wird gestoppt");
         running = false;
         thread.interrupt();
         thread.stop();

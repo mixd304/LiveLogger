@@ -29,12 +29,12 @@ public class ModelContainer {
     public ResultBoolean addOrdner(Ordner ordner) {
         try {
             this.ordnerList.add(ordner);
-            System.out.println("[INFO]   Neuer Ordner erfolgreich erstellt!");
+            System.out.println("[INFO] - {modelContainer} Neuer Ordner erfolgreich erstellt!");
             return new ResultBoolean(true, "Neuer Ordner angelegt!");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("[FEHLER] Ordner konnte nicht erstellt werden!");
+        System.out.println("[ERROR] - {modelContainer} Ordner konnte nicht erstellt werden!");
         return new ResultBoolean(false, "Fehler beim Anlegen des Ordners!");
     }
 
@@ -45,13 +45,11 @@ public class ModelContainer {
         for (Ordner ordner: ordnerList) {
             if(ordner.getUuid().equals(uuid)) {
                 ordnerList.remove(ordner);
-                System.out.println("[INFO]   Der Ordner mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
-                safeOrdner();
+                System.out.println("[INFO] - {modelContainer} Der Ordner mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
                 return new ResultBoolean(true, "Ordner gelöscht!");
             }
         }
-        System.out.println("[FEHLER] Der Ordner mit der UUID " + uuid + " konnte nicht gelöscht werden!");
-        safeOrdner();
+        System.out.println("[ERROR] - {modelContainer} Der Ordner mit der UUID " + uuid + " konnte nicht gelöscht werden!");
         return new ResultBoolean(false, "Fehler beim Löschen des Ordners!");
 
     }
@@ -64,12 +62,12 @@ public class ModelContainer {
             for (Verbindung verbindung: ordner.getList()) {
                 if(verbindung.getUuid().equals(uuid)) {
                     ordner.deleteVerbindungByUUID(uuid);
-                    System.out.println("[INFO]   Die Verbindung mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
+                    System.out.println("[INFO] - {modelContainer} Die Verbindung mit der UUID " + uuid + " wurde erfolgreich gelöscht!");
                     return new ResultBoolean(true, "Verbindung gelöscht!");
                 }
             }
         }
-        System.out.println("[FEHLER] Die Verbindung mit der UUID " + uuid + " konnte nicht gelöscht werden!");
+        System.out.println("[ERROR] - {modelContainer} Die Verbindung mit der UUID " + uuid + " konnte nicht gelöscht werden!");
         safeOrdner();
         return new ResultBoolean(false, "Fehler beim Löschen der Verbindung!");
     }
@@ -81,15 +79,14 @@ public class ModelContainer {
         verbindung.setUuid(UUID.randomUUID());
         for (Ordner o: this.ordnerList) {
             if(o.equals(ordner)) {
-                System.out.println("Ordner = Ordner");
                 o.addVerbindung(verbindung);
-                return new ResultBoolean(true, "Verbindung erfolgreich angelegt!");
+                return new ResultBoolean(true, "[INFO] - {modelContainer} Verbindung '" + verbindung.getBezeichnung() + "' erfolgreich zum Ordner '" + o.getBezeichnung() + "' hinzugefügt!");
             }
         }
         ordner.setUuid(UUID.randomUUID());
         ordner.addVerbindung(verbindung);
         ordnerList.add(ordner);
-        return new ResultBoolean(true, "Verbindung und Ordner erfolgreich angelegt!");
+        return new ResultBoolean(true, "[INFO] - {modelContainer} Ordner '" + ordner.getBezeichnung() + "' erfolgreich angelegt und Verbindung '" + verbindung.getBezeichnung() + "' hinzugefügt!");
     }
 
     /**
@@ -126,12 +123,12 @@ public class ModelContainer {
             for (Verbindung verbindung:ordner.getList()) {
                 if(verbindung.equals(old_verbindung)) {
                     ordner.getList().set(ordner.getList().indexOf(old_verbindung), new_verbindung);
-                    System.out.println("[INFO]   Die Verbindung mit der " + old_verbindung.getUuid() + " wurde erfolgreich editiert!");
+                    System.out.println("[INFO] - {modelContainer} Die Verbindung mit der ID " + old_verbindung.getUuid() + " wurde erfolgreich editiert!");
                     return true;
                 }
             }
         }
-        System.out.println("[INFO]   Die Verbindung mit der " + old_verbindung.getUuid() + " konnte nicht editiert werden!");
+        System.out.println("[INFO] - {modelContainer} Die Verbindung mit der ID " + old_verbindung.getUuid() + " konnte nicht editiert werden!");
         return false;
     }
 
@@ -142,9 +139,11 @@ public class ModelContainer {
         for(Ordner ordner: this.ordnerList) {
             if(ordner.equals(old_ordner)) {
                 ordnerList.set(ordnerList.indexOf(old_ordner), new_ordner);
+                System.out.println("[INFO] - {modelContainer} Der Ordner mit der ID " + old_ordner.getUuid() + " wurde erfolgreich editiert!");
                 return true;
             }
         }
+        System.out.println("[INFO] - {modelContainer} Der Ordner mit der ID " + old_ordner.getUuid() + " konnte nicht editiert werden!");
         return false;
     }
 
@@ -194,14 +193,14 @@ public class ModelContainer {
             }
 
             mapper.writeValue(new File(this.speicherort), this.ordnerList);
-            System.out.println("[INFO]   Liste mit Ordnern erfolgreich gespeichert!");
+            System.out.println("[INFO] - {modelContainer} Liste mit Ordnern erfolgreich gespeichert!");
 
             loadOrdner();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("[Fehler] beim Speichern der Liste mit Ordnern!");
+        System.out.println("[ERROR] - {modelContainer} beim Speichern der Liste mit Ordnern!");
         return false;
     }
 
@@ -212,7 +211,7 @@ public class ModelContainer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             this.ordnerList = mapper.readValue(new File(this.speicherort),  new TypeReference<List<Ordner>>() {});
-            System.out.println("[INFO]   Liste mit Ordnern erfolgreich geladen!");
+            System.out.println("[INFO] - {modelContainer} Liste mit Ordnern erfolgreich geladen!");
             for (Ordner ordner: this.ordnerList) {
                 for (Verbindung verbindung:ordner.getList()) {
                     if(verbindung.isSafePasswort()) {
@@ -242,9 +241,9 @@ public class ModelContainer {
             }
             return true;
         } catch (FileNotFoundException e) {
-            System.out.println("[INFO]   Liste mit Ordnern existiert nicht!");
+            System.out.println("[WARNING] - {modelContainer} Liste mit Ordnern existiert nicht!");
         } catch (Exception e) {
-            System.out.println("[Fehler] beim Laden der Liste mit Ordnern!");
+            System.out.println("[ERROR] - {modelContainer} beim Laden der Liste mit Ordnern!");
             e.printStackTrace();
         }
         return false;
@@ -255,13 +254,6 @@ public class ModelContainer {
      */
     public ArrayList<Ordner> getOrdnerList() {
         return ordnerList;
-    }
-
-    /**
-     *
-     */
-    public void setOrdnerList(ArrayList<Ordner> ordnerList) {
-        this.ordnerList = ordnerList;
     }
 
     /**

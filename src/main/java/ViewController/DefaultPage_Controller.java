@@ -17,7 +17,10 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import javax.swing.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static javafx.geometry.Pos.BOTTOM_LEFT;
@@ -27,6 +30,10 @@ import static javafx.geometry.Pos.BOTTOM_LEFT;
  *
  */
 public class DefaultPage_Controller {
+    public static String speicherort = null;
+    public static boolean recording;
+    public static PrintWriter printWriter;
+
     //Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
     public static Map<Verbindung, String> passwörter = new HashMap<>();
     public static ModelContainer modelContainer = new ModelContainer();
@@ -39,6 +46,7 @@ public class DefaultPage_Controller {
     @FXML
     private void initialize() {
         System.out.println("[Controller] Default Page Initialized");
+        loadSettings();
         buildMenue();
     }
 
@@ -64,6 +72,7 @@ public class DefaultPage_Controller {
      */
     @FXML
     private void buildMenue() {
+        System.out.println("[INFO] - {DefaultPage_Controller} Menü wird gebaut!");
         try {
             modelContainer.loadOrdner();
             vboxTitledPanes.getChildren().clear();
@@ -101,6 +110,7 @@ public class DefaultPage_Controller {
                 ((GridPane) secondPane.getChildren().get(0)).prefHeightProperty().bind(secondPane.heightProperty());
                 sessionContainer.rebuildLogs();
             }
+            System.out.println("[INFO] - {DefaultPage_Controller} Menü erfolgreich gebaut!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,7 +130,7 @@ public class DefaultPage_Controller {
         menuItem_open_close.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Ordner - Öffnen/ Schließen geklickt");
+                System.out.println("[ACTION] {ContextMenu - Ordner} Öffnen/ Schließen geklickt");
                 if(tP.isExpanded()) {
                     tP.setExpanded(false);
                 } else {
@@ -134,7 +144,7 @@ public class DefaultPage_Controller {
         menuItem_rename.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Ordner - Umbenennen geklickt");
+                System.out.println("[ACTION] {ContextMenu - Ordner} Umbenennen geklickt");
                 while(true) {
                     String[] ordnerData = buildPopup_newOrdner(tP.getText());
                     if(ordnerData == null) {
@@ -163,7 +173,7 @@ public class DefaultPage_Controller {
         menuItem_delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Ordner - Umbenennen geklickt");
+                System.out.println("[ACTION] {ContextMenu - Ordner} Umbenennen geklickt");
                 if(Dialogs.confirmDialog("Soll der Ordner '" + tP.getText() + "' wirklich gelöscht werden? \n \n" +
                         "WARNUNG: Hierbei werden alle zugehörigen Verbindungen ebenfalls gelöscht!")) {
                     UUID uuid = UUID.fromString(tP.getId());
@@ -174,6 +184,7 @@ public class DefaultPage_Controller {
                         }
                     }
                     modelContainer.deleteOrdnerByUUID(UUID.fromString(tP.getId()));
+                    modelContainer.safeOrdner();
                     rebuildGUI();
                 }
             }
@@ -209,6 +220,7 @@ public class DefaultPage_Controller {
             }
         });
         addContextMenuToCheckBox(checkBox);
+        System.out.println("[INFO] - {DefaultPage_Controller} - CheckBox erfolgreich erstellt!");
         return checkBox;
     }
 
@@ -228,7 +240,7 @@ public class DefaultPage_Controller {
         menuItem_open_close.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Verbindung - Öffnen/ Schließen geklickt");
+                System.out.println("[ACTION] {ContextMenu - Verbindung} Öffnen/ Schließen geklickt");
                 if(cB.isSelected()) {
                     cB.setSelected(false);
                 } else {
@@ -243,7 +255,7 @@ public class DefaultPage_Controller {
         menuItem_edit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Verbindung - Bearbeiten geklickt");
+                System.out.println("[ACTION] {ContextMenu - Verbindung} Bearbeiten geklickt");
                 editVerbindung(UUID.fromString(cB.getId()));
             }
         });
@@ -253,13 +265,14 @@ public class DefaultPage_Controller {
         menuItem_delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Verbindung - Löschen geklickt");
+                System.out.println("[ACTION] {ContextMenu - Verbindung} Löschen geklickt");
                 if(Dialogs.confirmDialog("Soll die Verbindung zu '" + cB.getText() + "' wirklich gelöscht werden?")) {
                     if(cB.isSelected()) {
                         cB.setSelected(false);
                     }
                     checkBoxClicked(cB);
                     modelContainer.deleteVerbindungByUUID(UUID.fromString(cB.getId()));
+                    modelContainer.safeOrdner();
                     sessionContainer.safeLogs();
                     buildMenue();
                 }
@@ -271,7 +284,7 @@ public class DefaultPage_Controller {
         menuItem_copyAsTemplate.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                System.out.println("[ACTION] Verbindung - Als Vorlage verwenden geklickt");
+                System.out.println("[ACTION] {ContextMenu - Verbindung} Als Vorlage verwenden geklickt");
                 copyVerbindung(UUID.fromString(cB.getId()));
             }
         });
@@ -355,6 +368,7 @@ public class DefaultPage_Controller {
         ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(0)).setText(verbindung.getKeyfile());
         ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(1)).setText(verbindung.getLogpath());
         ((TextField) ((GridPane)((TitledPane) felder.get(10)).getContent()).getChildren().get(2)).setText(verbindung.getPrecommand());
+        System.out.println("[INFO] - {DefaultPage_Controller} - Felder erfolgreich befüllt!");
     }
 
     /**
@@ -363,7 +377,7 @@ public class DefaultPage_Controller {
      * @see #buildPopup_newOrdner(String)
      */
     public void menue_newButtonClicked_Ordner(ActionEvent actionEvent) {
-        System.out.println("[ACTION] NewButtonVerbindung Clicked!");
+        System.out.println("[ACTION] {Menu - NewButtonOrdner} Clicked!");
         while(true) {
             String[] ordnerData = buildPopup_newOrdner("");
             if(ordnerData == null) {
@@ -434,7 +448,7 @@ public class DefaultPage_Controller {
      * @see NewVerbindungPage_Controller
      */
     public void menue_newButtonClicked_Verbindung(ActionEvent actionEvent) throws IOException {
-        System.out.println("[ACTION] NewButtonVerbindung Clicked!");
+        System.out.println("[ACTION] {Menu - NewButtonVerbindung} Clicked!");
         Pane newLoadedPane = FXMLLoader.load(getClass().getResource("/View/SecondPane/newVerbindungPage.fxml"));
         ((ChoiceBox<String>) newLoadedPane.getChildren().get(6)).getSelectionModel().select("Linux");
         secondPane.getChildren().set(0, newLoadedPane);
@@ -447,7 +461,7 @@ public class DefaultPage_Controller {
      * TODO: Methode "menue_deleteButtonClicked"
      */
     public void menue_deleteButtonClicked(ActionEvent actionEvent) throws IOException {
-        System.out.println("[ACTION] Delete Button Clicked!");
+        System.out.println("[ACTION] {Menu - DeleteButton} Clicked!");
         Dialogs.informationDialog("Diese Funktion ist in der aktuellen Version noch nicht verfügbar.", "Information");
     }
 
@@ -549,6 +563,137 @@ public class DefaultPage_Controller {
             }
         }
         return null;
+    }
+
+    /**
+     *
+     */
+    public void menue_changeSafeLocation(ActionEvent actionEvent) {
+        changeSafeLocation();
+    }
+
+    /**
+     *
+     */
+    public static boolean changeSafeLocation() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Neuer Speicherort");
+        fileChooser.setFileHidingEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        System.out.println(speicherort);
+        if(speicherort != null) {
+            System.out.println(speicherort);
+            fileChooser.setCurrentDirectory(new File(speicherort));
+        }
+
+        int returnVal = fileChooser.showOpenDialog(null);
+        String path = null;
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            path = fileChooser.getSelectedFile().getAbsolutePath();
+        }
+
+        if(path == null) {
+            return false;
+        }
+
+        speicherort = path;
+        safeSettings();
+        return true;
+    }
+
+    /**
+     *
+     */
+    public static boolean checkSafeLocation() {
+        if(!speicherort.equals(null)) {
+            File location = new File(speicherort);
+            if(location.exists()) {
+                return true;
+            } else {
+                Dialogs.confirmDialog("Der Speicherort konnte nicht gefunden werden!\n" +
+                        "Bitte wählen Sie einen neuen Speicherort aus!");
+                if(changeSafeLocation()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            Dialogs.confirmDialog("Sie haben noch keinen Speicherort ausgewählt!\n" +
+                    "Bitte wählen Sie einen Speicherort aus!");
+            if(changeSafeLocation()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public void menue_toggleRecord(ActionEvent actionEvent) {
+        RadioMenuItem source = (RadioMenuItem) actionEvent.getSource();
+        if(!recording) {
+            try {
+                checkSafeLocation();
+                DateFormat dateFormat = new SimpleDateFormat("yyyy MM dd HH.mm-ss");
+                Date date = new Date();
+                File file = new File(speicherort + "/[" + dateFormat.format(date) + "] Recording.txt");
+                printWriter = new PrintWriter(new BufferedWriter(new FileWriter(file, true)), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            recording = true;
+            source.setText("Aufnahme stoppen");
+        } else {
+            printWriter.close();
+            recording = false;
+            source.setText("Aufnahme starten");
+        }
+    }
+
+    /**
+     *
+     */
+    private static boolean safeSettings(){
+        System.out.println("[INFO] Speichere Settings");
+        try {
+            Properties saveProps = new Properties();
+            saveProps.setProperty("Speicherort", speicherort);
+            saveProps.storeToXML(new FileOutputStream("settings.xml"), "");
+            System.out.println("[INFO] Settings erfolgreich gespeichert!");
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[ERROR] Fehler beim speichern der Settings!");
+        return false;
+    }
+
+    /**
+     *
+     */
+    private static boolean loadSettings(){
+        System.out.println("[INFO] Lade Settings...");
+        try {
+            File file = new File("settings.xml");
+            if(file.exists()) {
+                Properties loadProps = new Properties();
+                loadProps.loadFromXML(new FileInputStream("settings.xml"));
+                speicherort = loadProps.getProperty("Speicherort");
+                System.out.println("[INFO] Settings erfolgreich geladen");
+                return true;
+            } else {
+                System.out.println("[WARNING] Keine Settings gefunden");
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("[ERROR] Fehler beim Laden der Settings!");
+        return false;
     }
 }
 

@@ -1,5 +1,6 @@
 package ViewController.SecondPaneController;
 
+import View.Dialogs;
 import ViewController.DefaultPage_Controller;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,13 +14,11 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.GridPane;
 
-import javax.swing.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class LogFilePage_Controller {
     @FXML Label log_1_label;
@@ -93,20 +92,10 @@ public class LogFilePage_Controller {
                 System.out.println("[ACTION] Zeile - Als Textdatei speichern geklickt");
                 contextMenu.hide();
 
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Speicherort auswählen");
-                fileChooser.setFileHidingEnabled(false);
-                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-                int returnVal = fileChooser.showOpenDialog(null);
-                String path = null;
-                if(returnVal == JFileChooser.APPROVE_OPTION) {
-                    path = fileChooser.getSelectedFile().getAbsolutePath();
-                }
-
-                if(path == null) {
+                if(!DefaultPage_Controller.checkSafeLocation()) {
                     return;
                 }
+                String path = DefaultPage_Controller.speicherort;
 
                 for (Label l: labelList) {
                     if(l.getId().equals(listview.getId() + "_label")) {
@@ -115,6 +104,7 @@ public class LogFilePage_Controller {
                         path = path + "/[" + dateFormat.format(date) + "] " + l.getText().trim() + ".txt";
                     }
                 }
+
                 File file = new File(path);
 
                 System.out.println("[INFO]   Speichere Logausgaben in Textdatei " + file);
@@ -125,6 +115,7 @@ public class LogFilePage_Controller {
                         printWriter.flush();
                     }
                     printWriter.close();
+                    Dialogs.confirmDialog("Die Textdatei wurde unter " + file + " gespeichert!");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

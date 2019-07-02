@@ -5,15 +5,23 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.dvzmv.livelogger</groupId>
     <artifactId>LiveLogger</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <versionName>${project.version}</versionName>
     </properties>
 
     <build>
         <finalName>LiveLogger</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -140,7 +148,11 @@
             <artifactId>controlsfx</artifactId>
             <version>8.40.14</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>3.6.0</version>
+        </dependency>
 
     </dependencies>
 

@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -24,6 +25,16 @@
                   <MenuItem fx:id="deleteButton" mnemonicParsing="false" onAction="#menue_deleteButtonClicked" text="Löschen" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Speicherort">
+              <items>
+                <MenuItem fx:id="Speicherort" mnemonicParsing="false" onAction="#menue_changeSafeLocation" text="Speicherort ändern" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Aufnahme">
+              <items>
+                  <RadioMenuItem fx:id="RecordButton" mnemonicParsing="false" onAction="#menue_toggleRecord" text="Aufnahme starten" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
       <GridPane fx:id="gridPane" gridLinesVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">

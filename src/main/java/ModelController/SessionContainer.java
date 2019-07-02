@@ -6,7 +6,6 @@ import Model.Data.LogSession;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
@@ -87,12 +86,14 @@ public class SessionContainer {
                 }
                 listviewList.get(logSessionList.size()).getItems().clear();
                 labelList.get(logSessionList.size()).setText("");
+                System.out.println("[INFO] - {sessionContainer} Verbindung erfolgreich geschlossen!");
                 buildListViews();
                 return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("[ERROR] - {sessionContainer} beim Schließen der Verbindung!");
         return false;
     }
 
@@ -197,18 +198,20 @@ public class SessionContainer {
                 }
             });
 
-            LogReader logReader = new LogReader(logSession.getListView());
+            LogReader logReader = new LogReader(logSession.getListView(), logSession.getLabel());
             // nur für Testzwecke bei Windows Servern benötigt
             logReader.setOutput(verbindung.getBezeichnung());
             logReader.startReading(verbindung);
 
             logSession.setLogReader(logReader);
             this.logSessionList.add(logSession);
+            System.out.println("[INFO] - {sessionContainer} neue LogSession angelegt!");
             buildListViews();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("[ERROR] - {sessionContainer} beim Anlegen einer neuen LogSession!");
         return false;
     }
 
@@ -230,6 +233,7 @@ public class SessionContainer {
         } else {
             buildListViews_3();
         }
+        System.out.println("[INFO] - {sessionContainer} ListViews neu gebaut!");
     }
     /**
      * Setzt alle Höhen und Breiten der GridPane-Felder entsprechend für 1 geöffnetes Log
@@ -299,7 +303,7 @@ public class SessionContainer {
      * Legt alle Ausgaben der ListViews in einer Liste ab
      */
     public void safeLogs() {
-        System.out.println("[INFO] Inhalte werden gesichert");
+        System.out.println("[INFO] - {sessionContainer} Inhalte werden gesichert!");
         this.ausgaben.clear();
         for (LogSession lS: logSessionList) {
             ausgaben.add(lS.getListView().getItems());
@@ -311,7 +315,7 @@ public class SessionContainer {
      * Liest alle in der Liste gespeicherten Ausgaben und schreibt Sie in die Oberfläche
      */
     public void rebuildLogs() {
-        System.out.println("[INFO] Inhalte werden neu geladen. Anzahl = " + this.ausgaben.size());
+        System.out.println("[INFO] - {sessionContainer} Inhalte werden neu geladen! Anzahl = " + this.ausgaben.size());
         buildListViews();
         for(int i = 0; i < logSessionList.size(); i++) {
             logSessionList.get(i).setListView(listviewList.get(i));

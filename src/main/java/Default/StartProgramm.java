@@ -7,7 +7,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +54,16 @@ public class StartProgramm extends Application {
         stage.heightProperty().addListener((obs, oldVal, newVal) -> {
 
         });*/
-        stage.setTitle("LiveLogger");
+        String title = "LiveLogger";
+        /*try {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model model = reader.read(new FileReader("pom.xml"));
+            title = model.getArtifactId() + " - v." + model.getVersion();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
+        stage.setTitle(title);
         stage.setResizable(true);
         stage.setScene(new Scene(root));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
